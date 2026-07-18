@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Saveway Express · ระบบคำนวณค่าขนส่ง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=Cormorant+Garamond:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:linear-gradient(160deg,#7A0F1E 0%,#5c0d18 55%,#2b0a10 100%);
+  font-family:'Sarabun',sans-serif;display:flex;justify-content:center;padding:20px 12px 40px}
+.wrap{width:100%;max-width:620px}
+.lang-bar{display:flex;justify-content:flex-end;gap:6px;margin-bottom:12px}
+.lang-btn{padding:4px 14px;border-radius:999px;font-size:12px;font-weight:700;cursor:pointer;
+  border:1.5px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);
+  transition:all .2s}
+.lang-btn.active{background:#F5A623;color:#7A0F1E;border-color:#F5A623}
+.lang-btn:hover{background:rgba(245,166,35,0.2);color:#fff}
+.header{text-align:center;margin-bottom:18px}
+.saveway-logo-link{display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:10px}
+.saveway-logo-mark{width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,#C8102E,#F5A623,#FCD34D);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-weight:800;font-size:16px;color:#fff}
+.saveway-logo-text{font-size:14px;font-weight:800;color:#fff;letter-spacing:.02em}
+.saveway-logo-text span{color:#F5A623}
+.brand-tag{font-size:10px;letter-spacing:.22em;color:#F5A623;font-weight:700;margin-bottom:4px}
+.title{font-size:20px;font-weight:800;color:#fff;font-family:'Cormorant Garamond',serif;line-height:1.2}
+.subtitle{color:#7a9abb;font-size:12px}
+.card{background:#fff;border-radius:20px;box-shadow:0 24px 64px rgba(0,0,0,.4);overflow:hidden}
+.card-body{padding:18px 16px 16px}
+
+.parcel-banner{background:linear-gradient(135deg,#fef3c7,#fde68a);border:1.5px solid #f59e0b;
+  border-radius:12px;padding:8px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.parcel-banner-icon{font-size:18px}
+.parcel-banner-text{font-size:11px;color:#92400e;line-height:1.4}
+.parcel-banner-title{font-weight:700;font-size:12px;color:#78350f}
+.la2th-note{background:#fef3c7;border:1.5px solid #f59e0b;color:#78350f;font-size:11.5px;
+  border-radius:10px;padding:8px 12px;margin:-8px 0 14px;line-height:1.5}
+
+.tier-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:10px}
+.tier-table th{background:#7A0F1E;color:#F5A623;padding:5px 8px;text-align:left;font-weight:700;font-size:9.5px}
+.tier-table td{padding:5px 8px;border-bottom:1px solid #f0ede6}
+.tier-table tr:last-child td{border-bottom:none}
+.tier-table tr.active-tier td{background:#fffbeb;font-weight:700}
+.tier-badge{display:inline-block;padding:1px 6px;border-radius:999px;font-size:9px;font-weight:700;color:#fff}
+
+.step-label{font-size:10px;font-weight:700;color:#7A0F1E;letter-spacing:.08em;margin-bottom:6px;margin-top:2px}
+
+.dir-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}
+.dir-btn{padding:10px 8px;border-radius:12px;cursor:pointer;border:2px solid #e8e4d9;
+  background:#fafaf8;text-align:center;transition:all .15s}
+.dir-btn.active{border-color:#F5A623;background:#7A0F1E;transform:scale(1.02)}
+.dir-btn:hover{transform:scale(1.02)}
+.dir-label{font-size:12px;font-weight:700;color:#222}
+.dir-btn.active .dir-label{color:#F5A623}
+.dir-sub{font-size:10px;color:#999}
+.dir-btn.active .dir-sub{color:rgba(245,166,35,.8)}
+.x2tag{display:inline-block;margin-top:4px;font-size:9px;padding:2px 8px;border-radius:999px;
+  background:#fee2e2;color:#991b1b;font-weight:700}
+.dir-btn.active .x2tag{background:#F5A623;color:#7A0F1E}
+
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}
+.cat-btn{display:flex;flex-direction:column;padding:10px 12px;border-radius:12px;
+  border:2px solid #e8e4d9;background:#fafaf8;cursor:pointer;text-align:left;
+  transition:all .15s}
+.cat-btn:hover{transform:scale(1.02);border-color:#ccc}
+.cat-btn.active{border-color:#7A0F1E;background:#7A0F1E08;box-shadow:0 0 0 3px rgba(122,15,30,0.1)}
+.cat-icon{font-size:18px}
+.cat-name{font-size:11px;font-weight:700;color:#222;line-height:1.2}
+.cat-sub{font-size:9.5px;color:#888;line-height:1.3}
+.cat-badge{font-size:8px;padding:1px 6px;border-radius:999px;background:#e8e4d9;
+  color:#666;font-weight:700;display:inline-block;margin-top:2px}
+.cat-btn.active .cat-badge{background:#7A0F1E;color:#fff}
+.cond-note{font-size:9px;color:#c2410c;font-style:italic;margin-top:1px}
+
+.cart-section{margin-bottom:14px}
+.cart-item{display:grid;grid-template-columns:24px 1fr 1fr 1fr 1fr 75px 28px;
+  gap:4px;align-items:center;background:#fafaf8;padding:6px 8px;border-radius:8px;
+  border:1px solid #e8e4d9;margin-bottom:4px;font-size:11px}
+.cart-item .idx{font-weight:700;color:#999;text-align:center;font-size:10px}
+.cart-item .dim-text{font-weight:600;color:#7A0F1E;font-size:10px}
+.cart-item .sum-text{font-size:9px;color:#888;font-weight:400}
+.cart-item .kg-text{font-weight:600;font-size:10px}
+.cart-item .vol-tag{display:block;font-size:8px;font-weight:700;color:#c2410c;margin-top:1px}
+.cart-item .qty-text{font-weight:600;font-size:10px;text-align:center}
+.cart-item .price-preview{color:#7A0F1E;font-weight:700;font-size:10px;text-align:right}
+.cart-item .price-preview .lm-tag{font-size:8px;color:#0369a1;font-weight:400;display:block}
+.cart-item .del-btn{background:transparent;border:none;color:#ef4444;cursor:pointer;
+  font-size:14px;padding:2px 6px;border-radius:4px;transition:all .15s;text-align:center}
+.cart-item .del-btn:hover{background:#fee2e2;transform:scale(1.2)}
+.cart-empty{text-align:center;color:#aaa;font-size:12px;padding:14px 0}
+
+.cart-add-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 50px 36px;gap:4px;
+  align-items:center;background:#f3f0e9;padding:6px 8px;border-radius:8px;
+  border:1px dashed #d0cbc0}
+.cart-add-row input{width:100%;padding:4px 2px;border-radius:6px;border:1.5px solid #d0cbc0;
+  font-size:12px;font-weight:600;text-align:center;background:#fff;outline:none}
+.cart-add-row input:focus{border-color:#F5A623;box-shadow:0 0 0 2px rgba(245,166,35,0.2)}
+.cart-add-row input::placeholder{font-size:8px;font-weight:400;color:#bbb}
+.cart-add-btn{padding:4px 8px;border-radius:6px;border:none;background:#7A0F1E;
+  color:#fff;font-size:16px;cursor:pointer;transition:all .15s;font-weight:700;height:32px}
+.cart-add-btn:hover{background:#a0102a;transform:scale(1.05)}
+
+.cart-summary{display:flex;justify-content:space-between;align-items:center;
+  padding:8px 4px;font-size:12px;border-top:2px solid #e8e4d9;margin-top:6px;flex-wrap:wrap;gap:4px}
+.cart-summary .stat{font-weight:700;color:#7A0F1E}
+.cart-clear-btn{padding:3px 12px;border-radius:999px;border:1.5px solid #e8e4d9;
+  background:transparent;color:#999;font-size:10px;cursor:pointer;font-weight:600}
+.cart-clear-btn:hover{background:#fee2e2;border-color:#ef4444;color:#ef4444}
+
+.lm-section{margin-bottom:14px}
+.lm-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.lm-btn{padding:10px 10px;border-radius:12px;cursor:pointer;border:2px solid #e8e4d9;
+  background:#fafaf8;text-align:center;transition:all .15s}
+.lm-btn:hover{transform:scale(1.02)}
+.lm-btn.active{border-color:#0369a1;background:#0369a115;box-shadow:0 0 0 3px rgba(3,105,161,0.1)}
+.lm-btn-label{font-size:11px;font-weight:700;color:#222}
+.lm-btn.active .lm-btn-label{color:#0369a1}
+.lm-btn-sub{font-size:9px;color:#999;line-height:1.3}
+.lm-btn.active .lm-btn-sub{color:#0369a1aa}
+.lm-price-tag{font-size:9px;font-weight:700;padding:1px 8px;border-radius:999px;
+  background:#e8e4d9;color:#555;display:inline-block;margin-top:3px}
+.lm-btn.active .lm-price-tag{background:#0369a1;color:#fff}
+.lm-area{display:none;padding-top:6px}
+.lm-area.show{display:block}
+.lm-zone-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:6px}
+.zone-btn{padding:6px 4px;border-radius:8px;cursor:pointer;border:2px solid #e8e4d9;
+  background:#fafaf8;text-align:center;font-size:10px;font-weight:700;color:#555;transition:all .15s}
+.zone-btn:hover{transform:scale(1.05)}
+.zone-btn.active{border-color:#0369a1;background:#0369a1;color:#fff}
+
+.calc-btn{width:100%;padding:12px;border-radius:12px;border:none;background:#ede9e0;
+  color:#bbb;font-size:14px;font-weight:800;cursor:not-allowed;letter-spacing:.04em;
+  margin-bottom:12px;font-family:'Sarabun',sans-serif;transition:all .2s}
+.calc-btn.ready{background:linear-gradient(135deg,#F5A623,#d4911e);color:#7A0F1E;cursor:pointer}
+.calc-btn.ready:hover{transform:scale(1.02);box-shadow:0 4px 16px rgba(245,166,35,0.3)}
+
+.result-box{border-radius:14px;padding:16px;color:#fff;margin-bottom:8px}
+.result-meta{font-size:10px;color:rgba(255,255,255,.65);margin-bottom:6px;line-height:1.8}
+.tag{display:inline-block;padding:1px 6px;border-radius:999px;font-size:9px;font-weight:700}
+.result-label{font-size:11px;color:rgba(255,255,255,.75);margin-bottom:3px}
+.result-price{font-size:42px;font-weight:900;line-height:1;font-family:'Cormorant Garamond',serif}
+.result-unit{font-size:12px;color:rgba(255,255,255,.7);margin-top:3px}
+.breakdown{background:rgba(255,255,255,.08);border-radius:8px;padding:10px 12px;margin-top:10px}
+.breakdown-row{display:flex;justify-content:space-between;font-size:11px;
+  color:rgba(255,255,255,.75);padding:2px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.breakdown-row:last-child{border-bottom:none;color:#F5A623;font-weight:700;font-size:12px;padding-top:4px}
+.result-note{font-size:10px;color:rgba(255,255,255,.45);margin-top:8px;line-height:1.6}
+
+.cart-result-table{width:100%;font-size:10px;border-collapse:collapse;margin:8px 0}
+.cart-result-table th{text-align:left;color:rgba(255,255,255,.6);font-weight:600;padding:3px 4px;border-bottom:1px solid rgba(255,255,255,.08)}
+.cart-result-table td{padding:3px 4px;border-bottom:1px solid rgba(255,255,255,.04)}
+.cart-result-table .total-row{font-weight:700;color:#F5A623;border-top:2px solid rgba(245,166,35,.3)}
+
+.reset-btn{padding:6px 18px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.25);background:transparent;
+  color:rgba(255,255,255,.7);font-size:11px;font-weight:600;cursor:pointer;font-family:'Sarabun',sans-serif}
+.reset-btn:hover{background:rgba(255,255,255,.1)}
+
+.warn-box{border-radius:12px;padding:14px 16px;text-align:center;margin-bottom:8px}
+.warn-orange{background:#fff7ed;border:1.5px solid #f97316}
+.warn-yellow{background:#fffbeb;border:1.5px solid #fbbf24}
+.warn-emoji{font-size:20px}
+.warn-title{font-weight:700;margin-top:4px;font-size:13px}
+.warn-sub{font-size:11px;margin-top:3px;line-height:1.5}
+.contact-link{display:inline-block;margin-top:8px;padding:6px 16px;border-radius:999px;
+  background:#7A0F1E;color:#F5A623;font-size:11px;font-weight:700;text-decoration:none}
+.contact-link:hover{transform:scale(1.05)}
+
+.note{font-size:9px;color:#aaa;text-align:center;margin-top:10px;line-height:1.5}
+.not-accepted{background:#fafaf8;border-top:1px solid #eee;padding:12px 16px}
+.not-title{font-size:10px;font-weight:700;color:#c00;margin-bottom:5px}
+.not-tags{display:flex;flex-wrap:wrap;gap:4px}
+.not-tag{font-size:10px;padding:2px 8px;border-radius:999px;background:#fee2e2;color:#991b1b;font-weight:500}
+.footer{text-align:center;margin-top:14px;font-size:9px;color:rgba(255,255,255,.15)}
+
+.action-bar{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.action-btn{flex:1;padding:7px 8px;border-radius:8px;border:1.5px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.06);color:rgba(255,255,255,.8);font-size:11px;font-weight:600;
+  cursor:pointer;font-family:'Sarabun',sans-serif;display:flex;align-items:center;
+  justify-content:center;gap:4px;transition:all .15s}
+.action-btn:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4);transform:scale(1.02)}
+
+#toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#7A0F1E;border:1.5px solid #F5A623;color:#F5A623;padding:8px 20px;
+  border-radius:999px;font-size:12px;font-weight:700;font-family:'Sarabun',sans-serif;
+  opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;z-index:9000;
+  box-shadow:0 4px 24px rgba(0,0,0,.5)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media print{
+  body{background:#fff!important;padding:0!important;display:block}
+  .lang-bar,.parcel-banner,.dir-grid,.tier-table,.cat-grid,.cart-add-row,
+  .lm-section,.calc-btn,.action-bar,.reset-btn,.not-accepted,.footer,
+  .adm-fab,#adminOverlay,.warn-box{display:none!important}
+  .wrap{max-width:100%}
+  .card{box-shadow:none!important;border-radius:0!important}
+  .card-body{padding:0!important}
+  .header{margin-bottom:10px}
+  .result-box{border-radius:6px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .breakdown{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #printHeader{display:block!important}
+  #printFooter{display:block!important}
+  .cart-item{background:#fff!important;border-color:#ccc!important}
+}
+#printHeader{display:none;text-align:center;padding:12px 0 6px;border-bottom:2px solid #F5A623;margin-bottom:12px}
+#printHeader .ph-logo{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:800;color:#7A0F1E}
+#printHeader .ph-logo span{color:#F5A623}
+#printHeader .ph-sub{font-size:10px;color:#666}
+#printFooter{display:none;text-align:center;padding:10px 0 0;border-top:1px solid #e8e4d9;
+  margin-top:12px;font-size:9px;color:#999;line-height:1.6}
+
+/* Admin */
+.adm-fab{position:fixed;bottom:20px;right:16px;width:40px;height:40px;border-radius:999px;
+  background:#F5A623;border:none;color:#7A0F1E;font-size:16px;cursor:pointer;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center}
+.adm-fab:hover{transform:scale(1.1)}
+
+#adminOverlay{display:none;position:fixed;inset:0;background:rgba(122,15,30,0.97);
+  z-index:9999;overflow-y:auto;padding:20px 14px 40px;font-family:'Sarabun',sans-serif}
+#adminOverlay.show{display:block}
+#adminOverlay.locked .adm-section{filter:blur(6px);pointer-events:none}
+#adminOverlay.locked .adm-save-btn{filter:blur(6px);pointer-events:none}
+#adminOverlay.locked .adm-export-btn{filter:blur(6px);pointer-events:none}
+
+.adm-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.adm-title{font-size:18px;font-weight:800;color:#F5A623;font-family:'Cormorant Garamond',serif}
+.adm-close{padding:6px 14px;border-radius:999px;border:1.5px solid rgba(255,255,255,.2);
+  background:transparent;color:#fff;font-size:11px;font-weight:700;cursor:pointer}
+.adm-section{background:rgba(255,255,255,.05);border-radius:14px;padding:14px;margin-bottom:12px}
+.adm-section-title{font-size:11px;font-weight:800;color:#F5A623;letter-spacing:.08em;margin-bottom:10px}
+.adm-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;
+  padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.adm-row:last-child{border-bottom:none}
+.adm-label{font-size:11px;color:#c8d8e8;font-weight:600}
+.adm-sub{font-size:9px;color:#6a8aaa}
+.adm-cost{font-size:11px;color:#f87171;font-weight:700;text-align:right;min-width:50px}
+.adm-input{width:65px;padding:4px 6px;border-radius:6px;border:1.5px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08);color:#fff;font-size:12px;font-weight:700;text-align:center;
+  font-family:'Sarabun',sans-serif;outline:none}
+.adm-input:focus{border-color:#F5A623}
+.adm-input:invalid{border-color:#ef4444}
+.adm-profit{font-size:10px;color:#4ade80;font-weight:700;text-align:right;min-width:45px}
+.adm-save-btn{width:100%;padding:10px;border-radius:10px;border:none;margin-top:6px;
+  background:linear-gradient(135deg,#F5A623,#b8941e);color:#7A0F1E;
+  font-size:13px;font-weight:800;cursor:pointer;font-family:'Sarabun',sans-serif}
+.adm-save-btn:hover{transform:scale(1.02)}
+.adm-export-btn{width:100%;padding:8px;border-radius:10px;border:1.5px solid rgba(245,166,35,.3);
+  background:rgba(245,166,35,.1);color:#F5A623;font-size:11px;font-weight:600;cursor:pointer;
+  font-family:'Sarabun',sans-serif;margin-top:4px}
+.adm-reset-btn{width:100%;padding:8px;border-radius:10px;border:1.5px solid rgba(255,255,255,.15);
+  background:transparent;color:#999;font-size:11px;font-weight:600;cursor:pointer;
+  font-family:'Sarabun',sans-serif;margin-top:4px}
+.adm-import-area{margin-top:8px;padding:10px;border:1px dashed rgba(255,255,255,.2);
+  border-radius:8px;background:rgba(255,255,255,.03)}
+.adm-import-area textarea{width:100%;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.05);color:#c8d8e8;font-size:10px;font-family:monospace;resize:vertical;min-height:60px}
+.adm-import-area .adm-import-btn{padding:4px 14px;border-radius:6px;border:none;
+  background:#F5A623;color:#7A0F1E;font-weight:700;cursor:pointer;margin-top:4px;font-size:11px}
+
+.adm-security-warning{background:#fef3c7;border:1.5px solid #f59e0b;border-radius:8px;
+  padding:8px 12px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.adm-security-warning .warn-icon{font-size:18px}
+.adm-security-warning .warn-text{font-size:10px;color:#78350f;line-height:1.4}
+.adm-security-warning .warn-text strong{color:#7A0F1E}
+.adm-security-warning.unlocked{background:#dcfce7;border-color:#22c55e}
+.adm-security-warning.unlocked .warn-text{color:#166534}
+
+.adm-lock-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;z-index:10;background:rgba(122,15,30,0.92);border-radius:14px}
+.adm-lock-overlay .lock-icon{font-size:40px;margin-bottom:8px}
+.adm-lock-overlay .lock-text{color:#F5A623;font-weight:700;font-size:13px}
+.adm-lock-overlay .lock-sub{color:#7a9abb;font-size:10px;margin-top:3px}
+.adm-lock-overlay .pin-input-small{width:160px;padding:8px;border-radius:8px;border:1.5px solid rgba(245,166,35,.4);
+  background:rgba(255,255,255,.08);color:#fff;font-size:18px;font-weight:700;text-align:center;
+  letter-spacing:.3em;outline:none;margin-top:8px}
+.adm-lock-overlay .pin-input-small:focus{border-color:#F5A623}
+.adm-lock-overlay .pin-btn-small{padding:6px 20px;border-radius:999px;border:none;
+  background:linear-gradient(135deg,#F5A623,#b8941e);color:#7A0F1E;font-weight:700;
+  cursor:pointer;margin-top:6px;font-family:'Sarabun',sans-serif}
+
+/* PIN Change Modal */
+.pin-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;
+  align-items:center;justify-content:center;padding:20px}
+.pin-modal.show{display:flex}
+.pin-modal-box{background:#1a1a2e;border-radius:16px;padding:24px;max-width:400px;width:100%;
+  border:1px solid rgba(245,166,35,0.3)}
+.pin-modal-box h3{color:#F5A623;font-size:16px;margin-bottom:12px;font-family:'Cormorant Garamond',serif}
+.pin-modal-box .field{margin-bottom:12px}
+.pin-modal-box label{display:block;font-size:11px;color:#aaa;margin-bottom:4px}
+.pin-modal-box input{width:100%;padding:8px 12px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.05);color:#fff;font-size:14px;outline:none;font-family:'Sarabun',sans-serif}
+.pin-modal-box input:focus{border-color:#F5A623}
+.pin-modal-box .btn-row{display:flex;gap:8px;margin-top:12px}
+.pin-modal-box .btn-row button{flex:1;padding:8px;border-radius:8px;border:none;font-weight:700;
+  font-family:'Sarabun',sans-serif;cursor:pointer}
+.pin-modal-box .btn-save{background:linear-gradient(135deg,#F5A623,#b8941e);color:#7A0F1E}
+.pin-modal-box .btn-cancel{background:rgba(255,255,255,0.1);color:#aaa}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- PIN Change Modal -->
+<div class="pin-modal" id="pinModal">
+  <div class="pin-modal-box">
+    <h3>🔑 เปลี่ยน PIN Admin</h3>
+    <div class="field">
+      <label>PIN ปัจจุบัน</label>
+      <input type="password" id="oldPinInput" maxlength="6" placeholder="••••••"/>
+    </div>
+    <div class="field">
+      <label>PIN ใหม่</label>
+      <input type="password" id="newPinInput" maxlength="6" placeholder="••••••"/>
+    </div>
+    <div class="field">
+      <label>ยืนยัน PIN ใหม่</label>
+      <input type="password" id="confirmPinInput" maxlength="6" placeholder="••••••"/>
+    </div>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closePinModal()">ยกเลิก</button>
+      <button class="btn-save" onclick="changeAdminPin()">💾 เปลี่ยน PIN</button>
+    </div>
+  </div>
+</div>
+
+<div id="printHeader">
+  <div class="ph-logo">Saveway<span> Express</span> · ใบเสนอราคาค่าขนส่ง</div>
+  <div class="ph-sub">savewayexpress.com · savewaypress@gmail.com · โทร. 085-590-7666</div>
+</div>
+
+<div class="wrap">
+  <div style="text-align:center">
+    <a href="#" class="saveway-logo-link">
+      <div class="saveway-logo-mark">S</div>
+      <div class="saveway-logo-text">Saveway<span> Express</span></div>
+    </a>
+  </div>
+
+  <div class="lang-bar">
+    <button class="lang-btn active" onclick="setLang('th', event)">ไทย</button>
+    <button class="lang-btn" onclick="setLang('en', event)">EN</button>
+    <button class="lang-btn" onclick="setLang('lo', event)">ລາວ</button>
+  </div>
+
+  <div class="header">
+    <div class="brand-tag">SAVEWAY EXPRESS · ส่งพัสดุทั่วไทย ส่งไกลถึงสปป.ลาว</div>
+    <div class="title" id="hTitle">คำนวณค่าขนส่งไทย-ลาว</div>
+    <div class="subtitle" id="hSub">หนองคาย → เวียงจันทน์ · รวมภาษีนำเข้าลาว</div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="parcel-banner">
+        <span class="parcel-banner-icon">📦</span>
+        <div>
+          <div class="parcel-banner-title" id="parcelTitle">ส่งชิ้นเล็ก / น้อยชิ้น ก็ส่งได้!</div>
+          <div class="parcel-banner-text" id="parcelDesc">< 1 กก. → ฿150 flat · 1–4.9 กก. → ฿180 flat · 5–9.9 กก. → ฿220 flat · (Parcel ใช้เมื่อน้ำหนักรวม < 30 กก. เท่านั้น)</div>
+        </div>
+      </div>
+
+      <div class="step-label" id="s0Label">เลือกเส้นทาง</div>
+      <div class="dir-grid">
+        <button class="dir-btn active" id="btn-th2la" onclick="setDir('th2la')">
+          <div class="dir-label" id="dir0Label">🇹🇭 ไทย → ลาว</div>
+          <div class="dir-sub" id="dir0Sub">หนองคาย → เวียงจันทน์</div>
+        </button>
+        <button class="dir-btn" id="btn-la2th" onclick="setDir('la2th')">
+          <div class="dir-label" id="dir1Label">🇱🇦 ลาว → ไทย</div>
+          <div class="dir-sub" id="dir1Sub">เวียงจันทน์ → หนองคาย</div>
+          <div class="x2tag" id="la2thMultTag">×2</div>
+        </button>
+      </div>
+      <div id="la2thNote" class="la2th-note" style="display:none">ℹ️ เส้นทางนี้ไม่มีบริการ Last Mile — รับพัสดุที่โกดังหนองคายเท่านั้น</div>
+
+      <div class="step-label" id="sTierLabel">📊 ส่วนลดตามปริมาณ (Volume Discount)</div>
+      <table class="tier-table">
+        <thead><tr><th id="thTier">Tier</th><th id="thRange">น้ำหนักรวม</th><th id="thDiscount">ส่วนลด</th></tr></thead>
+        <tbody id="tierBody"></tbody>
+      </table>
+
+      <div class="step-label" id="s1Label">เลือกประเภทสินค้า</div>
+      <div class="cat-grid" id="catGrid"></div>
+
+      <div class="step-label" id="sCartLabel">📦 เพิ่มกล่องในตะกร้า</div>
+      <div class="cart-section">
+        <div id="cartItems">
+          <div class="cart-empty">🗂️ ยังไม่มีรายการ คลิก ➕ เพื่อเพิ่มกล่อง</div>
+        </div>
+
+        <div id="editBadge" style="display:none;color:#c2410c;font-size:12px;font-weight:700;margin:4px 0">✏️ กำลังแก้ไขกล่อง #<span id="editBadgeIdx"></span> — แก้ค่าด้านล่างแล้วกด 💾 เพื่อบันทึก <span id="editCancelBtn" style="cursor:pointer;text-decoration:underline;margin-left:8px" onclick="cancelEditCartItem()">✕ ยกเลิก</span></div>
+        <div class="cart-add-row">
+          <input type="number" id="addW" placeholder="กว้าง" min="1" step="0.5"/>
+          <input type="number" id="addL" placeholder="ยาว" min="1" step="0.5"/>
+          <input type="number" id="addH" placeholder="สูง" min="1" step="0.5"/>
+          <input type="number" id="addKg" placeholder="กก." min="0.01" step="0.1"/>
+          <input type="number" id="addQty" placeholder="จำนวน" min="1" step="1" value="1"/>
+          <button class="cart-add-btn" id="addBtn" onclick="addCartItem()">➕</button>
+        </div>
+
+        <div class="cart-summary">
+          <span>📊 <span id="cartTotalLabel">น้ำหนักรวม</span>: <strong class="stat" id="cartTotalKg">0</strong> กก.</span>
+          <span id="cartTotalBillKg" style="display:none;color:#c2410c">📐 <span id="cartTotalBillLabel">น้ำหนักคิดค่าระวาง</span>: <strong>0</strong> กก.</span>
+          <span>📦 <span id="cartBoxesLabel">จำนวนกล่อง</span>: <strong class="stat" id="cartTotalBoxes">0</strong></span>
+          <span id="cartLmNote" style="display:none;color:#0369a1">🚚 Last Mile: <strong id="cartLmValue">0</strong> บ. <span id="cartLmDetail" style="font-size:9px"></span></span>
+          <button class="cart-clear-btn" onclick="clearCart()">🗑️ ล้าง</button>
+        </div>
+      </div>
+
+      <div id="lmSection">
+        <div class="step-label" id="s3Label">เลือกการจัดส่งปลายทาง</div>
+        <div class="lm-grid">
+          <button class="lm-btn active" id="lm-warehouse" onclick="setLM('warehouse')">
+            <div class="lm-btn-label" id="lm0Label">🏭 ส่งถึงโกดัง</div>
+            <div class="lm-btn-sub" id="lm0Sub">ลูกค้าไปรับเองที่โกดังเวียงจันทน์</div>
+            <div class="lm-price-tag" id="lm0Price">รวมในราคาแล้ว</div>
+          </button>
+          <button class="lm-btn" id="lm-delivery" onclick="setLM('delivery')">
+            <div class="lm-btn-label" id="lm1Label">🚚 ส่งถึงมือผู้รับ</div>
+            <div class="lm-btn-sub" id="lm1Sub">จัดส่งถึงที่อยู่ในลาว</div>
+            <div class="lm-price-tag" id="lm1Price">มีค่าบริการเพิ่ม</div>
+          </button>
+        </div>
+        <div class="lm-area" id="lmZoneArea">
+          <div class="step-label" id="s3bLabel">เขตปลายทางในลาว</div>
+          <div class="lm-zone-grid" id="zoneGrid"></div>
+        </div>
+      </div>
+
+      <button class="calc-btn ready" id="calcBtn" onclick="calculateCart()">💰 คำนวณราคาตะกร้า</button>
+      <div id="resultArea"></div>
+      <p class="note" id="noteText">* ราคาประมาณเบื้องต้น อาจเปลี่ยนแปลงตามขนาดและน้ำหนักจริง</p>
+    </div>
+
+    <div class="not-accepted">
+      <div class="not-title" id="notTitle">❌ สินค้าที่ไม่รับ</div>
+      <div class="not-tags" id="notTags"></div>
+    </div>
+  </div>
+  <div class="footer">Saveway Express · savewayexpress.com · savewaypress@gmail.com</div>
+</div>
+
+<div id="printFooter">
+  ราคานี้เป็นการประมาณเบื้องต้น อาจเปลี่ยนแปลงตามขนาดและน้ำหนักจริง<br/>
+  Saveway Express (บริษัท เซฟเวย์เทรดดิ้ง จำกัด) · savewayexpress.com<br/>
+  <span id="printDate"></span>
+</div>
+
+<!-- Admin Overlay -->
+<div id="adminOverlay" style="display:none">
+  <div class="adm-header">
+    <div class="adm-title">⚙️ Admin · จัดการราคา</div>
+    <div style="display:flex;gap:8px">
+      <button class="adm-close" onclick="openPinModal()" style="background:rgba(245,166,35,0.15);border:1.5px solid rgba(245,166,35,0.3);padding:6px 14px;border-radius:999px;color:#F5A623;font-size:11px;font-weight:700;cursor:pointer">🔑 เปลี่ยน PIN</button>
+      <button class="adm-close" onclick="closeAdmin()">✕ ปิด</button>
+    </div>
+  </div>
+  <div class="adm-security-warning" id="securityWarning">
+    <span class="warn-icon">🔒</span>
+    <span class="warn-text"><strong>⚠️ ข้อมูลนี้เป็นความลับของบริษัท</strong><br/>ราคาต้นทุนและ markup เป็นข้อมูลภายใน</span>
+  </div>
+  <div id="adminContent"></div>
+</div>
+
+<button class="adm-fab" id="adminFab" onclick="openAdmin()">⚙️</button>
+
+<script>
+// ─── CONSTANTS ──────────────────────────────────────────────────────────────
+
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
+const BULK_THRESHOLD_KG = 30;
+const DIR_RATE = { th2la: 1, la2th: 2 };
+// ✅ น้ำหนักปริมาตร (Volumetric/Dimensional Weight) — มาตรฐานขนส่งทั่วไป
+// สูตร: (กว้าง×ยาว×สูง ซม.) ÷ ตัวหาร = น้ำหนักปริมาตร (กก.)
+// ตัวหาร 5000 เป็นค่ามาตรฐานสำหรับขนส่งทางบก/พัสดุทั่วไปในไทย (ปรับได้ใน Admin)
+// ราคาคิดจาก "น้ำหนักที่คิดค่าระวาง" (Billable Weight) = max(น้ำหนักจริง, น้ำหนักปริมาตร)
+let VOLUMETRIC_DIVISOR = 5000;
+
+// ─── PIN MANAGEMENT ──────────────────────────────────────────────────────
+
+function simpleHash(str){
+  let h = 5381;
+  for(let i=0;i<str.length;i++){ h = ((h<<5)+h) + str.charCodeAt(i); h|=0; }
+  return (h>>>0).toString(16);
+}
+// ⚠️ obfuscation เท่านั้น ไม่ใช่ crypto ที่ปลอดภัยจริง (client-side ล้วนไม่มีทางปลอดภัย 100% โดยไม่มี backend)
+// แต่ดีกว่าเก็บ PIN เป็น plain text ที่เห็นตรงๆใน DevTools > Application > Local Storage
+function getAdminPinHash() {
+  const oldPlain = localStorage.getItem('savewayAdminPin');
+  if(oldPlain){ localStorage.setItem('savewayAdminPinHash', simpleHash(oldPlain)); localStorage.removeItem('savewayAdminPin'); }
+  const saved = localStorage.getItem('savewayAdminPinHash');
+  if(saved) return saved;
+  const defaultHash = simpleHash('2026');
+  localStorage.setItem('savewayAdminPinHash', defaultHash);
+  return defaultHash;
+}
+
+function openPinModal() {
+  document.getElementById('pinModal').classList.add('show');
+  document.getElementById('oldPinInput').value = '';
+  document.getElementById('newPinInput').value = '';
+  document.getElementById('confirmPinInput').value = '';
+}
+
+function closePinModal() {
+  document.getElementById('pinModal').classList.remove('show');
+}
+
+function changeAdminPin() {
+  const oldPin = document.getElementById('oldPinInput').value;
+  const newPin = document.getElementById('newPinInput').value;
+  const confirmPin = document.getElementById('confirmPinInput').value;
+  
+  if(simpleHash(oldPin) !== getAdminPinHash()) {
+    showToast('❌ PIN ปัจจุบันไม่ถูกต้อง');
+    return;
+  }
+  if(newPin.length < 4) {
+    showToast('⚠️ PIN ต้องมีอย่างน้อย 4 ตัว');
+    return;
+  }
+  if(newPin !== confirmPin) {
+    showToast('⚠️ PIN ใหม่ไม่ตรงกัน');
+    return;
+  }
+  
+  localStorage.setItem('savewayAdminPinHash', simpleHash(newPin));
+  closePinModal();
+  showToast('✅ เปลี่ยน PIN สำเร็จ');
+  
+  // Refresh session
+  sessionStorage.removeItem('adminSession');
+  if(document.getElementById('adminOverlay').style.display === 'block') {
+    document.getElementById('adminOverlay').classList.add('locked');
+    document.getElementById('adminContent').innerHTML = renderLockScreen();
+    const w = document.getElementById('securityWarning');
+    if(w){ w.classList.remove('unlocked'); w.innerHTML='<span class="warn-icon">🔒</span><span class="warn-text"><strong>⚠️ ข้อมูลนี้เป็นความลับ</strong><br/>กรุณาใส่ PIN ใหม่</span>'; }
+  }
+}
+
+// ─── DATA ──────────────────────────────────────────────────────────────────
+
+const CATEGORIES = [
+  {id:'beauty',icon:'✨',markup:1.10,minKg:0,color:'#7c3aed',
+   label:{th:'ความงาม สปา & อาหารเสริม',en:'Beauty, Spa & Supplements',lo:'ສິນຄ້າງາມ'},
+   sub:{th:'ครีม เซรั่ม วิตามิน คอลลาเจน',en:'Skincare, serum, vitamins',lo:'ຄຣີມ, ວິຕາມິນ'},
+   minLabel:{th:'ไม่มีขั้นต่ำ',en:'No minimum',lo:'ບໍ່ມີຂັ້ນຕ່ຳ'}},
+  {id:'fashion',icon:'👕',markup:1.05,minKg:0,color:'#b45309',
+   label:{th:'เสื้อผ้า แฟชั่น & ของใช้ทั่วไป',en:'Fashion & General Goods',lo:'ເຄື່ອງນຸ່ງ'},
+   sub:{th:'เสื้อผ้า กระเป๋า รองเท้า ของตกแต่งบ้าน',en:'Clothing, bags, shoes, home décor',lo:'ເຄື່ອງນຸ່ງ, ກະເປົາ'},
+   minLabel:{th:'ไม่มีขั้นต่ำ',en:'No minimum',lo:'ບໍ່ມີຂັ້ນຕ່ຳ'}},
+  {id:'electronics',icon:'🔌',markup:1.15,minKg:0,color:'#0369a1',
+   label:{th:'เครื่องใช้ไฟฟ้า & อิเล็กทรอนิกส์',en:'Appliances & Electronics',lo:'ເຄື່ອງໃຊ້ໄຟຟ້າ'},
+   sub:{th:'พัดลม หูฟัง กรอบโทรศัพท์ สายชาร์จ',en:'Fans, earphones, chargers',lo:'ພັດລົມ, ຫູຟັງ'},
+   minLabel:{th:'ไม่มีขั้นต่ำ',en:'No minimum',lo:'ບໍ່ມີຂັ້ນຕ່ຳ'}},
+  {id:'condiment',icon:'🍶',markup:1.25,minKg:5,color:'#c2410c',
+   label:{th:'เครื่องปรุง ซอส & อาหารสำเร็จรูป',en:'Condiments & Sauces',lo:'ເຄື່ອງປຸງ'},
+   sub:{th:'น้ำปลา น้ำจิ้ม กะปิ ซอส บะหมี่กึ่งฯ',en:'Fish sauce, dipping sauce, paste',lo:'ນ້ຳປາ, ນ້ຳຈິ້ມ'},
+   minLabel:{th:'ขั้นต่ำ 5 กก.',en:'Min. 5 kg',lo:'ຂັ້ນຕ່ຳ 5 ກກ.'}},
+  {id:'beverage',icon:'🥤',markup:1.15,minKg:30,color:'#0284c7',
+   label:{th:'เครื่องดื่ม & น้ำดื่มบรรจุขวด',en:'Beverages & Bottled Water',lo:'ເຄື່ອງດື່ມ'},
+   sub:{th:'น้ำดื่ม น้ำผลไม้ เครื่องดื่มชูกำลัง',en:'Water, juice, energy drinks',lo:'ນ້ຳດື່ມ, ນ້ຳໝາກໄມ້'},
+   minLabel:{th:'ขั้นต่ำ 30 กก.',en:'Min. 30 kg',lo:'ຂັ້ນຕ່ຳ 30 ກກ.'}},
+  {id:'agri',icon:'🌾',markup:1.15,minKg:20,color:'#166534',
+   label:{th:'สินค้าเกษตรแปรรูป & วัตถุดิบแห้ง',en:'Agro-processed & Dry Goods',lo:'ສິນຄ້າກະສິກຳ'},
+   sub:{th:'ข้าว น้ำตาล แป้ง ถั่ว ผลไม้อบแห้ง',en:'Rice, sugar, flour, beans',lo:'ເຂົ້າ, ນ້ຳຕານ'},
+   minLabel:{th:'ขั้นต่ำ 20 กก.',en:'Min. 20 kg',lo:'ຂັ້ນຕ່ຳ 20 ກກ.'}},
+];
+
+// ✅ แก้ไข: เพิ่ม Parcel Medium สำหรับกล่อง 5-9.9 กก.
+const PARCEL_TIERS = [
+  {id:'P-Mini',minKg:0,maxKg:0.99,flat:55,color:'#dc2626',
+   label:{th:'Parcel Mini',en:'Parcel Mini',lo:'ພັດສະດຸ Mini'},
+   range:{th:'< 1 กก.',en:'< 1 kg',lo:'< 1 ກກ.'}},
+  {id:'P-Small',minKg:1,maxKg:4.99,flat:85,color:'#ea580c',
+   label:{th:'Parcel Small',en:'Parcel Small',lo:'ພັດສະດຸ Small'},
+   range:{th:'1–4.9 กก.',en:'1–4.9 kg',lo:'1–4.9 ກກ.'}},
+  {id:'P-Medium',minKg:5,maxKg:9.99,flat:130,color:'#d97706',
+   label:{th:'Parcel Medium',en:'Parcel Medium',lo:'ພັດສະດຸ Medium'},
+   range:{th:'5–9.9 กก.',en:'5–9.9 kg',lo:'5–9.9 ກກ.'}},
+];
+
+const VOL_TIERS = [
+  {id:'S',minKg:5,maxKg:29,discount:0,color:'#6b7280',
+   label:{th:'Retail',en:'Retail',lo:'ຂາຍຍ່ອຍ'},range:{th:'5–29 กก.',en:'5–29 kg',lo:'5–29 ກກ.'}},
+  {id:'M',minKg:30,maxKg:99,discount:0.05,color:'#7A0F1E',
+   label:{th:'Small Wholesale',en:'Small Wholesale',lo:'ຄ້າສົ່ງນ້ອຍ'},range:{th:'30–99 กก.',en:'30–99 kg',lo:'30–99 ກກ.'}},
+  {id:'L',minKg:100,maxKg:299,discount:0.10,color:'#166534',
+   label:{th:'Distributor',en:'Distributor',lo:'ດິສຕຣິບິວເຕີ'},range:{th:'100–299 กก.',en:'100–299 kg',lo:'100–299 ກກ.'}},
+  {id:'XL',minKg:300,maxKg:9999,discount:0.15,color:'#7c3aed',
+   label:{th:'Key Account',en:'Key Account',lo:'ລູກຄ້າຫຼັກ'},range:{th:'300 กก.+',en:'300 kg+',lo:'300 ກກ.+'}},
+];
+
+// หมายเหตุ: vte/suburb ใช้ flat ตรงๆ ในการคำนวณ (ดู computeLMTotal)
+// province.flat ไม่ได้ถูกใช้คำนวณราคาจริง — ราคาจริงคิดแบบ dynamic ตามน้ำหนัก
+// (ดู getProvinceBoxCostTHB + PROVINCE_LM_MARGIN + PROVINCE_MIN_PRICE ใน computeLMTotal)
+// เก็บ flat ไว้เป็นค่าอ้างอิง/ค่าเริ่มต้นเท่านั้น
+const LM_ZONES = [
+  {id:'vte',flat:50,color:'#0369a1',label:{th:'เวียงจันทน์',en:'Vientiane',lo:'ວຽງຈັນ'},sub:{th:'same day',en:'same day',lo:'ມື້ດຽວ'}},
+  {id:'suburb',flat:90,color:'#7c3aed',label:{th:'ชานเมือง VTE',en:'Suburbs',lo:'ຊານເມືອງ'},sub:{th:'+40 บ.',en:'+remote',lo:'+ຄ່າຫ່າງ'}},
+  {id:'province',flat:150,color:'#166534',label:{th:'ต่างแขวง',en:'Provinces',lo:'ຕ່າງແຂວງ'},sub:{th:`เริ่มต้น ฿150 · ตามน้ำหนัก`,en:'from ฿150 · by weight',lo:'ເລີ່ມ ฿150 · ຕາມນ້ຳໜັກ'}},
+];
+
+// ✅ Anousith Express — เรตจริงค่าส่ง "ต่างแขวง" (LAK) ตามน้ำหนัก/ขนาด (คอลัมน์ราคาปกติ ยังไม่ถึงยอด 1,000/เดือน)
+// index 0 = 1kg ... index 29 = 30kg. เกิน 30kg คิดต่อจาก LAK_OVERAGE_PER_KG
+const PROVINCE_LM_TABLE_LAK = [
+  8000,9500,11000,12500,14000,15500,17000,18500,20000,21500,
+  23000,24500,26000,27500,28000,30000,32000,34000,36000,38000,
+  40000,42000,44000,46000,48000,50000,52000,54000,56000,58000,
+];
+let LAK_OVERAGE_PER_KG = 2000;           // เกิน 30 กก. คิดเพิ่ม/กก.
+let LAK_HOME_ADDON_LIGHT = 6000;         // ค่าส่งถึงบ้าน พัสดุ ≤5กก.
+let LAK_HOME_ADDON_HEAVY = 10000;        // ค่าส่งถึงบ้าน พัสดุ >5กก.
+let LAK_TO_THB_RATE = 0.00148;           // อัตราแลกเปลี่ยน กีบ→บาท (เช็คอัปเดตเป็นระยะ)
+let PROVINCE_LM_MARGIN = 1.2;            // มาร์จิ้นบนต้นทุน Anousith ต่างแขวง (+20%)
+let PROVINCE_MIN_PRICE = 150;            // ราคาขั้นต่ำต่อกล่องสำหรับต่างแขวง (กันขายต่ำเกินไปสำหรับกล่องเบา)
+
+const ANOUSITH_COST = { vte: 7.5, suburb: 15 };
+let WAREHOUSE_DISCOUNT = 0.90;
+
+const NOT_ACCEPTED = {
+  th:['ของสด/ผลไม้สด','Cold Chain/แช่แข็ง','ของเหลวไม่บรรจุ','วัตถุอันตราย','ยา/เวชภัณฑ์','สัตว์มีชีวิต'],
+  en:['Fresh produce','Cold chain/frozen','Unpacked liquids','Hazardous','Pharmaceuticals','Live animals'],
+  lo:['ສິນຄ້າສົດ','ແຊ່ເຢັນ','ບໍ່ບັນຈຸ','ອັນຕະລາຍ','ຢາ','ສັດ'],
+};
+
+const LL = {
+  th:{title:'คำนวณค่าขนส่งไทย-ลาว',sub:'หนองคาย → เวียงจันทน์ · รวมภาษีนำเข้าลาว',
+    parcelTitle:'📦 ส่งชิ้นเล็ก / น้อยชิ้น ก็ส่งได้!',
+    parcelDescFn:(p0,p1,p2)=>`< 1 กก. → เริ่มต้น ฿${p0} · 1–10 กก. → คิดไล่ระดับตามน้ำหนัก/ขนาดจริง (สูงสุด ฿${p2}) · (Parcel ใช้เมื่อน้ำหนักรวม < ${BULK_THRESHOLD_KG} กก. เท่านั้น)`,
+    sTier:'📊 ส่วนลดตามปริมาณ',thTier:'Tier',thRange:'น้ำหนักรวม',thDiscount:'ส่วนลด',
+    s0:'เลือกเส้นทาง',s1:'เลือกประเภทสินค้า',sCart:'📦 เพิ่มกล่องในตะกร้า',
+    calc:'💰 คำนวณราคาตะกร้า',reset:'คำนวณใหม่',result:'ค่าขนส่งรวมทั้งออเดอร์',
+    perBox:'ต่อกล่อง',perKg:'ต่อกก.',totalKg:'น้ำหนักรวม',volTier:'Volume Tier',
+    incl:'รวมภาษีนำเข้าลาว · ส่งถึงโกดังเวียงจันทน์',notAccepted:'❌ สินค้าที่ไม่รับ',
+    overLimit:'ขนาด/น้ำหนักต่อกล่องเกินมาตรฐาน',overSub:'กรุณาติดต่อทีมงาน',
+    contact:'ติดต่อทีมงาน →',belowMin:(n)=>`ขั้นต่ำ ${n} กก. สำหรับหมวดนี้`,
+    note:'* ราคาประมาณเบื้องต้น อาจเปลี่ยนแปลงตามขนาดและน้ำหนักจริง',
+    la2thNote:'ℹ️ เส้นทางนี้ไม่มีบริการ Last Mile — รับพัสดุที่โกดังหนองคายเท่านั้น',
+    cartTotal:'น้ำหนักรวม',cartBoxes:'จำนวนกล่อง',cartEmpty:'🗂️ ยังไม่มีรายการ คลิก ➕ เพื่อเพิ่มกล่อง',
+    lineItem:'รายการ',dim:'ขนาด',dimSum:'มิติรวม',weight:'น้ำหนัก',qty:'จำนวน',price:'ราคา/กล่อง',subtotal:'รวมย่อย',
+    lmTag:'(รวม Last Mile แล้ว)',
+    volHint:'คิดตามน้ำหนักปริมาตร (กล่องใหญ่แต่เบา)',cartTotalBillLabel:'น้ำหนักคิดค่าระวาง'},
+  en:{title:'Shipping Rate Calculator',sub:'Nong Khai → Vientiane · Import duty included',
+    parcelTitle:'📦 Small items? No problem!',
+    parcelDescFn:(p0,p1,p2)=>`< 1 kg → from ฿${p0} · 1–10 kg → scales with actual weight/size (up to ฿${p2}) · (Parcel applies when total < ${BULK_THRESHOLD_KG} kg)`,
+    sTier:'📊 Volume Discount',thTier:'Tier',thRange:'Total Weight',thDiscount:'Discount',
+    s0:'Select route',s1:'Select category',sCart:'📦 Add boxes',
+    calc:'💰 Calculate total',reset:'Recalculate',result:'Total shipping cost',
+    perBox:'per box',perKg:'per kg',totalKg:'Total weight',volTier:'Volume Tier',
+    incl:'Includes Lao import duty · Delivered to Vientiane warehouse',notAccepted:'❌ Not accepted',
+    overLimit:'Box size/weight exceeds standard',overSub:'Please contact team',
+    contact:'Contact us →',belowMin:(n)=>`Min ${n} kg for this category`,
+    note:'* Estimated rate only. Final price confirmed upon actual size and weight.',
+    la2thNote:'ℹ️ No Last Mile on this route — pickup at Nong Khai warehouse only.',
+    cartTotal:'Total weight',cartBoxes:'Total boxes',cartEmpty:'🗂️ No items — click ➕ to add',
+    lineItem:'Item',dim:'Size',dimSum:'Total dim.',weight:'Weight',qty:'Qty',price:'Price/box',subtotal:'Subtotal',
+    lmTag:'(Last Mile included)',
+    volHint:'Charged by volumetric weight (large but light box)',cartTotalBillLabel:'Billable weight'},
+  lo:{title:'ຄິດໄລ່ຄ່າຂົນສົ່ງ',sub:'ໜອງຄາຍ → ວຽງຈັນ · ລວມອາກອນ',
+    parcelTitle:'📦 ສົ່ງຂອງຊິ້ນນ້ອຍໄດ້!',
+    parcelDescFn:(p0,p1,p2)=>`< 1 ກກ. → ເລີ່ມຕົ້ນ ฿${p0} · 1–10 ກກ. → ຄິດຕາມນ້ຳໜັກ/ຂະໜາດຈິງ (ສູງສຸດ ฿${p2}) · (Parcel ໃຊ້ເມື່ອນ້ຳໜັກລວມ < ${BULK_THRESHOLD_KG} ກກ.)`,
+    sTier:'📊 ສ່ວນຫຼຸດ',thTier:'Tier',thRange:'ນ້ຳໜັກ',thDiscount:'ສ່ວນຫຼຸດ',
+    s0:'ເລືອກເສັ້ນທາງ',s1:'ເລືອກປະເພດ',sCart:'📦 ເພີ່ມກ່ອງ',
+    calc:'💰 ຄິດໄລ່',reset:'ຄິດໄລ່ໃໝ່',result:'ຄ່າຂົນສົ່ງລວມ',
+    perBox:'ຕໍ່ກ່ອງ',perKg:'ຕໍ່ກກ.',totalKg:'ນ້ຳໜັກ',volTier:'Volume Tier',
+    incl:'ລວມອາກອນ · ສົ່ງຮອດສາງ',notAccepted:'❌ ບໍ່ຮັບ',
+    overLimit:'ເກີນມາດຕະຖານ',overSub:'ຕິດຕໍ່ທີມງານ',
+    contact:'ຕິດຕໍ່ →',belowMin:(n)=>`ຂັ້ນຕ່ຳ ${n} ກກ.`,
+    note:'* ລາຄາປະມານ ອາດປ່ຽນແປງ',
+    la2thNote:'ℹ️ ບໍ່ມີ Last Mile — ຮັບທີ່ສາງໜອງຄາຍ',
+    cartTotal:'ນ້ຳໜັກ',cartBoxes:'ຈຳນວນກ່ອງ',cartEmpty:'🗂️ ຍັງບໍ່ມີ — ກົດ ➕ ເພື່ອເພີ່ມ',
+    lineItem:'ລາຍການ',dim:'ຂະໜາດ',dimSum:'ມິຕິ',weight:'ນ້ຳໜັກ',qty:'ຈຳນວນ',price:'ລາຄາ',subtotal:'ລວມ',
+    lmTag:'(ລວມ Last Mile ແລ້ວ)',
+    volHint:'ຄິດຕາມນ້ຳໜັກປະລິມາຕອນ',cartTotalBillLabel:'ນ້ຳໜັກຄິດຄ່າຂົນສົ່ງ'},
+};
+
+const DIRS = {
+  th:[{id:'th2la',label:'🇹🇭 ไทย → ลาว',sub:'หนองคาย → เวียงจันทน์'},
+      {id:'la2th',label:'🇱🇦 ลาว → ไทย',sub:'เวียงจันทน์ → หนองคาย'}],
+  en:[{id:'th2la',label:'🇹🇭 Thailand → Laos',sub:'Nong Khai → Vientiane'},
+      {id:'la2th',label:'🇱🇦 Laos → Thailand',sub:'Vientiane → Nong Khai'}],
+  lo:[{id:'th2la',label:'🇹🇭 ໄທ → ລາວ',sub:'ໜອງຄາຍ → ວຽງຈັນ'},
+      {id:'la2th',label:'🇱🇦 ລາວ → ໄທ',sub:'ວຽງຈັນ → ໜອງຄາຍ'}],
+};
+
+const LM_LABELS = {
+  th:{s3:'เลือกการจัดส่งปลายทาง',s3b:'เขตปลายทางในลาว',
+    lm0:'🏭 ส่งถึงโกดัง',lm0sub:'ลูกค้าไปรับเองที่โกดังเวียงจันทน์',lm0price:'รวมในราคาแล้ว',
+    lm1:'🚚 ส่งถึงมือผู้รับ',lm1sub:'จัดส่งถึงที่อยู่ในลาว',lm1price:'มีค่าบริการเพิ่ม'},
+  en:{s3:'Select delivery',s3b:'Destination zone',
+    lm0:'🏭 Warehouse pickup',lm0sub:'Customer collects at Vientiane warehouse',lm0price:'Included',
+    lm1:'🚚 Door-to-door',lm1sub:'Delivers to address in Laos',lm1price:'Additional fee'},
+  lo:{s3:'ເລືອກວິທີຈັດສົ່ງ',s3b:'ເຂດປາຍທາງ',
+    lm0:'🏭 ຮັບທີ່ສາງ',lm0sub:'ລູກຄ້າໄປຮັບທີ່ສາງ',lm0price:'ລວມ',
+    lm1:'🚚 ສົ່ງຮອດທີ່ຢູ່',lm1sub:'ສົ່ງຮອດທີ່ຢູ່',lm1price:'ເພີ່ມ'},
+};
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+
+let lang = 'th', catId = null, dirId = 'th2la', lmMode = 'warehouse', lmZone = 'vte';
+let cart = [], isAdminUnlocked = false, adminSessionTimer = null, editingId = null, adminSettingsChanged = false;
+window.addEventListener('beforeunload', (e)=>{ if(adminSettingsChanged && isAdminUnlocked){ e.preventDefault(); e.returnValue='คุณยังไม่ได้บันทึกการเปลี่ยนแปลงใน Admin'; return e.returnValue; } });
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+
+function getParcelTier(kg){ return PARCEL_TIERS.find(t=>kg>=t.minKg&&kg<=t.maxKg)||null; }
+function getVolTier(kg){ return VOL_TIERS.find(t=>kg>=t.minKg&&kg<=t.maxKg)||VOL_TIERS[0]; }
+
+// ✅ FIX: ต้นทุนต่อกล่องสำหรับทุกช่วงน้ำหนัก (0.01–50 กก.)
+// กล่อง < 10 กก. ยังคงใช้เรทเดิม (150 / 180 / 220 บาท flat) ตามที่กำหนดไว้
+// กล่อง ≥ 10 กก. เดิมไม่มีสูตรรองรับ (บั๊ก: คืนค่า null → ระบบฟ้อง "เกินมาตรฐาน")
+// สูตรใหม่ต่อยอดแบบ "ต้นทุนฐาน + อัตราส่วนเพิ่ม/กก. ที่ลดหลั่นลง" (degressive rate)
+// ต่อเนื่องจากจุดตัดของ P-Medium เสมอ และอ้างอิงค่า flat ที่ตั้งใน Admin แบบไดนามิก
+// (ถ้าแก้ต้นทุน P-Medium ใน Admin ทุกเรทของกล่องใหญ่จะขยับตามอัตโนมัติ)
+const BOX_MARGINAL_RATE = { large: 18, xl: 14, bulk: 11 }; // บาท/กก. ส่วนเพิ่มแต่ละช่วง
+// ✅ FIX: ราคาต่อเนื่องตามน้ำหนัก/ขนาด แทนการ flat ทั้งช่วง (0.99/4.99 กก. ยังฟรีค่าจัดการขั้นต่ำ)
+// P-Mini/Small/Medium ที่ตั้งใน Admin คือ "ราคา ณ จุดสิ้นสุดช่วง" (anchor) ไม่ใช่ราคาเหมาทั้งช่วงอีกต่อไป
+// เช่น P-Mini=55 คือราคาที่ 1 กก., P-Small=85 คือราคาที่ 5 กก., P-Medium=130 คือราคาที่ 10 กก.
+// น้ำหนักระหว่างจุดจะได้ราคาไล่ระดับเชิงเส้นระหว่างสองจุดนั้น
+function interpolateParcelCost(kg){
+  const pMini   = PARCEL_TIERS.find(t=>t.id==='P-Mini').flat;
+  const pSmall  = PARCEL_TIERS.find(t=>t.id==='P-Small').flat;
+  const pMedium = PARCEL_TIERS.find(t=>t.id==='P-Medium').flat;
+  if(kg <= 1) return pMini; // ต่ำกว่า 1 กก. คิดค่าจัดการขั้นต่ำคงที่ (ของเบามาก แพ็ค/แอดมินไม่ต่างกันมาก)
+  if(kg <= 5) return pMini + (pSmall - pMini) * ((kg - 1) / 4);
+  return pSmall + (pMedium - pSmall) * ((kg - 5) / 5); // kg <= 10
+}
+function getBoxBaseCost(kg){
+  const pMedium = PARCEL_TIERS.find(t=>t.id==='P-Medium').flat;
+
+  if(kg <= 9.99){
+    const tier = getParcelTier(kg) || PARCEL_TIERS[PARCEL_TIERS.length-1];
+    const cost = interpolateParcelCost(kg);
+    return { flat: Math.ceil(cost/5)*5, id: tier.id, label: tier.label.th };
+  }
+
+  const at10 = pMedium; // ต่อเนื่องจากราคาที่ 9.99-10 กก.
+  if(kg <= 19.99){
+    const cost = at10 + BOX_MARGINAL_RATE.large * (kg - 9.99);
+    return { flat: Math.ceil(cost/5)*5, id:'P-Large', label:'Parcel Large' };
+  }
+  const at20 = at10 + BOX_MARGINAL_RATE.large * 10; // ค่าที่จุดตัด 19.99 กก.
+  if(kg <= 34.99){
+    const cost = at20 + BOX_MARGINAL_RATE.xl * (kg - 19.99);
+    return { flat: Math.ceil(cost/5)*5, id:'P-XL', label:'Parcel XL' };
+  }
+  const at35 = at20 + BOX_MARGINAL_RATE.xl * 15; // ค่าที่จุดตัด 34.99 กก.
+  const cost = at35 + BOX_MARGINAL_RATE.bulk * (kg - 34.99);
+  return { flat: Math.ceil(cost/5)*5, id:'P-Bulk', label:'Parcel Bulk' };
+}
+// ✅ ต้นทุน Anousith ต่างแขวง: lookup ตามน้ำหนักคิดค่าระวาง (บิลกก.) + ค่าส่งถึงบ้านตามน้ำหนักจริง แปลงเป็นบาท
+function getProvinceCostLAK(kg){
+  const k = Math.max(1, Math.ceil(kg));
+  if(k<=30) return PROVINCE_LM_TABLE_LAK[k-1];
+  return PROVINCE_LM_TABLE_LAK[29] + (k-30)*LAK_OVERAGE_PER_KG;
+}
+function getProvinceBoxCostTHB(item){
+  const baseLAK = getProvinceCostLAK(item.billKg);
+  const addonLAK = item.billKg<=5 ? LAK_HOME_ADDON_LIGHT : LAK_HOME_ADDON_HEAVY;
+  return (baseLAK+addonLAK)*LAK_TO_THB_RATE;
+}
+// ✅ ฟังก์ชันกลางคำนวณ Last Mile ทั้งตะกร้า — vte/suburb ยังคิดแบบ flat/กล่อง, province คิดตามน้ำหนักจริงของแต่ละกล่อง (ต้นทุน Anousith จริง)
+function computeLMTotal(items, discount=0){
+  if(dirId==='la2th'||lmMode==='warehouse') return 0;
+  const z=LM_ZONES.find(z=>z.id===lmZone);
+  if(!z) return 0;
+  if(lmZone==='province'){
+    let total=0;
+    items.forEach(it=>{ const rate=Math.max(Math.round(getProvinceBoxCostTHB(it)*PROVINCE_LM_MARGIN*(1-discount)), PROVINCE_MIN_PRICE); total+=rate*(it.qty||1); });
+    return total;
+  }
+  const boxCount=items.reduce((s,it)=>s+(it.qty||1),0);
+  const rate=Math.round(z.flat*(1-discount));
+  return rate*boxCount;
+}
+function getLMCost(boxCount=1, discount=0){ if(dirId==='la2th'||lmMode==='warehouse') return 0; const z=LM_ZONES.find(z=>z.id===lmZone); if(!z) return 0; const rate=Math.round(z.flat*(1-discount)); return rate*boxCount; }
+function getLMRate(discount=0){ const z=LM_ZONES.find(z=>z.id===lmZone); return z?Math.round(z.flat*(1-discount)):0; }
+function fmt(n){ return n.toLocaleString('th-TH'); }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+
+// ✅ FIX: น้ำหนักปริมาตร + น้ำหนักที่คิดค่าระวางจริง (มาตรฐานขนส่ง)
+function getVolumetricWeight(w,l,h){ return (w*l*h)/VOLUMETRIC_DIVISOR; }
+function getBillableWeight(w,l,h,kg){ return Math.max(kg, getVolumetricWeight(w,l,h)); }
+
+// สร้างรายการตะกร้าพร้อมคำนวณน้ำหนักปริมาตร/น้ำหนักคิดค่าระวางให้ครบทุกครั้ง
+function makeCartItem(id, w, l, h, kg, qty){
+  const volKg  = parseFloat(getVolumetricWeight(w,l,h).toFixed(2));
+  const billKg = parseFloat(Math.max(kg, volKg).toFixed(2));
+  return {
+    id, w, l, h, kg, qty,
+    dim: w+l+h,
+    volKg,                                              // น้ำหนักปริมาตรต่อกล่อง
+    billKg,                                              // น้ำหนักคิดค่าระวางต่อกล่อง (ใช้คำนวณราคาจริง)
+    totalKg: parseFloat((kg*qty).toFixed(2)),            // น้ำหนักจริงรวม (ใช้เช็คขั้นต่ำหมวดสินค้า)
+    totalBillKg: parseFloat((billKg*qty).toFixed(2)),    // น้ำหนักคิดค่าระวางรวม (ใช้คำนวณ tier/ราคา)
+  };
+}
+
+// ✅ ฟังก์ชันกลางสำหรับคำนวณราคาต่อกล่อง (ใช้ทั้ง Preview และ Calculate)
+// totalBillKg = น้ำหนักคิดค่าระวางรวมทั้งออเดอร์ (ไม่ใช่น้ำหนักจริง) — ใช้ตัดสิน tier/parcel eligibility
+function calculateBoxPrice(item, cat, dirMult, totalBillKg, includeLM = true) {
+  const isParcelEligible = totalBillKg < BULK_THRESHOLD_KG;
+  const tier = getVolTier(totalBillKg);
+  const discount = isParcelEligible ? 0 : tier.discount;
+  
+  // ✅ FIX: ใช้ getBoxBaseCost() ซึ่งรองรับทุกน้ำหนักกล่อง 0.01–50 กก. ต่อเนื่องกัน
+  // (แก้บั๊กเดิม: กล่อง ≥10 กก. ในออเดอร์ bulk เคยคืนค่า null → ฟ้อง "เกินมาตรฐาน")
+  // ✅ FIX: ใช้ item.billKg (น้ำหนักคิดค่าระวาง = max(น้ำหนักจริง, น้ำหนักปริมาตร))
+  // แทน item.kg เดิม เพื่อป้องกันกล่องใหญ่-เบา (ของฟุ้ง) ถูกคิดราคาต่ำกว่าต้นทุนที่ระวางจริง
+  let pt = getBoxBaseCost(item.billKg);
+  if(!pt) return null;
+  
+  const effMarkup = cat.markup * (1 - discount) * dirMult;
+  let price = Math.ceil(pt.flat * effMarkup / 5) * 5;
+  
+  // Floor Price
+  if(isParcelEligible) {
+    let floorBase = pt.flat * dirMult;
+    let floorPrice = Math.ceil(floorBase / 5) * 5;
+    if(lmMode === 'warehouse') {
+      floorPrice = Math.ceil(floorPrice * WAREHOUSE_DISCOUNT / 5) * 5;
+    }
+    price = Math.max(price, floorPrice);
+  } else if(lmMode === 'warehouse') {
+    price = Math.ceil(price * WAREHOUSE_DISCOUNT / 5) * 5;
+  }
+  
+  if(includeLM) {
+    const lmCost = getLMCost();
+    price += lmCost;
+  }
+  
+  return price;
+}
+
+// ─── ADMIN ──────────────────────────────────────────────────────────────────
+
+function isAdminSessionValid(){
+  const pinHash = getAdminPinHash();
+  try { const s=JSON.parse(sessionStorage.getItem('adminSession')||'{}'); return s.pinHash===pinHash && Date.now()-s.timestamp<SESSION_TIMEOUT_MS; }
+  catch(e){ return false; }
+}
+
+function refreshAdminSession(){
+  const pinHash = getAdminPinHash();
+  sessionStorage.setItem('adminSession', JSON.stringify({pinHash,timestamp:Date.now()}));
+  isAdminUnlocked=true;
+  const w=document.getElementById('securityWarning');
+  if(w){ w.classList.add('unlocked'); w.innerHTML='<span class="warn-icon">🔓</span><span class="warn-text"><strong>✅ ปลดล็อคแล้ว</strong><br/>Session หมดอายุใน 30 นาที</span>'; }
+  if(adminSessionTimer) clearTimeout(adminSessionTimer);
+  adminSessionTimer=setTimeout(()=>{ sessionStorage.removeItem('adminSession'); isAdminUnlocked=false; document.getElementById('adminOverlay').classList.add('locked'); document.getElementById('adminContent').innerHTML=renderLockScreen(); const w2=document.getElementById('securityWarning'); if(w2){ w2.classList.remove('unlocked'); w2.innerHTML='<span class="warn-icon">🔒</span><span class="warn-text"><strong>⚠️ ข้อมูลนี้เป็นความลับ</strong><br/>กรุณาใส่ PIN</span>'; } showToast(adminSettingsChanged?'🔒 Session หมดอายุ — การแก้ไขที่ยังไม่กด บันทึก หายไปแล้ว':'🔒 Session หมดอายุ'); adminSettingsChanged=false; }, SESSION_TIMEOUT_MS);
+}
+
+function checkAdminPin(input){ 
+  const pinHash = getAdminPinHash();
+  if(simpleHash(input)===pinHash){ refreshAdminSession(); document.getElementById('adminOverlay').classList.remove('locked'); renderAdminPanel(); showToast('✅ ปลดล็อคแล้ว'); return true; } 
+  showToast('❌ PIN ไม่ถูกต้อง'); return false; 
+}
+
+function forgotPin(){
+  if(!confirm('รีเซ็ต PIN กลับเป็นค่าเริ่มต้น (2026)? การเปลี่ยนแปลงอื่นๆในระบบจะไม่หาย')) return;
+  localStorage.removeItem('savewayAdminPinHash');
+  sessionStorage.removeItem('adminSession');
+  isAdminUnlocked=false;
+  document.getElementById('adminContent').innerHTML=renderLockScreen();
+  showToast('🔄 รีเซ็ต PIN เป็น 2026 แล้ว');
+}
+
+function renderLockScreen(){ 
+  return `<div class="adm-lock-overlay"><div class="lock-icon">🔒</div><div class="lock-text">ข้อมูลต้นทุนถูกซ่อนไว้</div><div class="lock-sub">กรุณาใส่ PIN</div><input class="pin-input-small" type="password" id="adminPinInput" maxlength="6" placeholder="••••" onkeydown="if(event.key==='Enter')checkAdminPin(this.value)"/><button class="pin-btn-small" onclick="checkAdminPin(document.getElementById('adminPinInput').value)">🔓 ปลดล็อค</button><div style="margin-top:10px"><a href="#" onclick="forgotPin();return false;" style="font-size:10px;color:#999;text-decoration:underline">ลืม PIN?</a></div></div>`; 
+}
+
+function openAdmin(){ 
+  const ov=document.getElementById('adminOverlay'); 
+  ov.style.display='block'; 
+  ov.classList.add('show'); 
+  if(isAdminSessionValid()){ 
+    refreshAdminSession(); 
+    ov.classList.remove('locked'); 
+    renderAdminPanel(); 
+  }else{ 
+    ov.classList.add('locked'); 
+    document.getElementById('adminContent').innerHTML=renderLockScreen(); 
+  } 
+}
+
+function closeAdmin(){ 
+  if(adminSettingsChanged && !confirm('⚠️ คุณยังไม่ได้กด "บันทึก" — การเปลี่ยนแปลงจะหายไปถ้าปิดตอนนี้ ต้องการปิดเลยไหม?')) return;
+  document.getElementById('adminOverlay').style.display='none'; 
+  document.getElementById('adminOverlay').classList.remove('show'); 
+}
+
+function renderAdminPanel(){
+  if(!isAdminSessionValid()){ document.getElementById('adminContent').innerHTML=renderLockScreen(); return; }
+  let html='';
+  html+=`<div class="adm-section"><div class="adm-section-title">📦 MARKUP หมวดสินค้า</div>`;
+  CATEGORIES.forEach(c=>{ const p=Math.round((c.markup-1)*100); html+=`<div class="adm-row"><div><div class="adm-label">${c.icon} ${c.label.th}</div><div class="adm-sub">ต้นทุน × ${c.markup.toFixed(2)}</div></div><div class="adm-cost">×<input class="adm-input" id="mu-${c.id}" type="number" value="${c.markup.toFixed(2)}" min="1" max="3" step="0.05"/></div><div class="adm-profit">${p}%</div></div>`; });
+  html+=`</div>`;
+  const whPct=Math.round((1-WAREHOUSE_DISCOUNT)*100);
+  html+=`<div class="adm-section"><div class="adm-section-title">🏭 Warehouse Discount</div><div class="adm-row"><div><div class="adm-label">🏭 ส่วนลดมารับเอง</div><div class="adm-sub">ราคา × ตัวคูณ</div></div><div class="adm-cost">×<input class="adm-input" id="wh-discount" type="number" value="${WAREHOUSE_DISCOUNT.toFixed(2)}" min="0.5" max="1" step="0.01"/></div><div class="adm-profit">-${whPct}%</div></div></div>`;
+  html+=`<div class="adm-section"><div class="adm-section-title">🚚 ต้นทุน Last Mile</div>`;
+  ['vte','suburb'].forEach(z=>{ const c=ANOUSITH_COST[z]||0; const s=LM_ZONES.find(x=>x.id===z)?.flat||0; const p=s>0?Math.round((s-c)/s*100):0; const lbl={vte:'เวียงจันทน์',suburb:'ชานเมือง'}[z]; html+=`<div class="adm-row"><div><div class="adm-label">${lbl}</div><div class="adm-sub">ต้นทุน ฿${c.toFixed(1)} · ขาย ฿${s}</div></div><div class="adm-cost">฿<input class="adm-input" id="lmcost-${z}" type="number" value="${c}" min="0" step="0.5" style="width:60px"/></div><div class="adm-profit">+฿${(s-c).toFixed(0)} (${p}%)</div></div>`; });
+  html+=`</div>`;
+  html+=`<div class="adm-section"><div class="adm-section-title">🚚 ต้นทุน Last Mile ต่างแขวง (Anousith · ตามน้ำหนัก)</div>
+    <div class="adm-row"><div><div class="adm-label">อัตราแลกเปลี่ยน กีบ→บาท</div><div class="adm-sub">เช็คอัปเดตเป็นระยะ</div></div><div class="adm-cost"><input class="adm-input" id="lak-rate" type="number" value="${LAK_TO_THB_RATE}" min="0.001" max="0.003" step="0.00001" style="width:70px"/></div><div class="adm-profit"></div></div>
+    <div class="adm-row"><div><div class="adm-label">มาร์จิ้นบนต้นทุน</div><div class="adm-sub">คูณต้นทุน Anousith ก่อนขาย</div></div><div class="adm-cost">×<input class="adm-input" id="province-margin" type="number" value="${PROVINCE_LM_MARGIN.toFixed(2)}" min="1" max="2" step="0.05" style="width:60px"/></div><div class="adm-profit">+${Math.round((PROVINCE_LM_MARGIN-1)*100)}%</div></div>
+    <div class="adm-row"><div><div class="adm-label">ราคาขั้นต่ำ/กล่อง</div><div class="adm-sub">กันขายต่ำกว่านี้สำหรับกล่องเบา</div></div><div class="adm-cost">฿<input class="adm-input" id="province-min-price" type="number" value="${PROVINCE_MIN_PRICE}" min="0" step="5" style="width:60px"/></div><div class="adm-profit"></div></div>
+    <div class="adm-row"><div><div class="adm-label">ค่าส่งถึงบ้าน ≤5กก.</div><div class="adm-sub">กีบ</div></div><div class="adm-cost">₭<input class="adm-input" id="lak-addon-light" type="number" value="${LAK_HOME_ADDON_LIGHT}" min="0" step="500" style="width:70px"/></div><div class="adm-profit"></div></div>
+    <div class="adm-row"><div><div class="adm-label">ค่าส่งถึงบ้าน &gt;5กก.</div><div class="adm-sub">กีบ</div></div><div class="adm-cost">₭<input class="adm-input" id="lak-addon-heavy" type="number" value="${LAK_HOME_ADDON_HEAVY}" min="0" step="500" style="width:70px"/></div><div class="adm-profit"></div></div>
+    <div class="adm-row"><div><div class="adm-label">เกิน 30กก. เพิ่ม/กก.</div><div class="adm-sub">กีบ</div></div><div class="adm-cost">₭<input class="adm-input" id="lak-overage" type="number" value="${LAK_OVERAGE_PER_KG}" min="0" step="100" style="width:70px"/></div><div class="adm-profit"></div></div>
+    <div style="margin-top:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;font-size:9px;color:#6a8aaa;line-height:1.6">
+      ℹ️ ตารางฐาน 1–30 กก. อ้างอิงเรตจริงจาก Anousith Express (คอลัมน์ราคาปกติ ยังไม่ถึงยอด 1,000/เดือน) — แก้ได้เฉพาะอัตราแลกเปลี่ยน/มาร์จิ้น/ค่าส่งถึงบ้านที่นี่ ถ้า Saveway ถึงยอดคอมมิต 1,000 หรือ 1,500 พัสดุ/เดือนแล้ว ค่อยขอตารางเรตใหม่มาอัปเดต
+    </div></div>`;
+  html+=`<div class="adm-section"><div class="adm-section-title">📫 Parcel Pricing (กล่อง &lt; 10 กก. — ไล่ระดับต่อเนื่อง)</div>`;
+  const anchorKgLabel={'P-Mini':'ที่ 1 กก.','P-Small':'ที่ 5 กก.','P-Medium':'ที่ 10 กก.'};
+  PARCEL_TIERS.forEach(p=>{ html+=`<div class="adm-row"><div><div class="adm-label">${p.id} ${p.label.th}</div><div class="adm-sub">ราคา ณ ${anchorKgLabel[p.id]||p.range.th} (จุดต่อ ramp)</div></div><div class="adm-cost">฿<input class="adm-input" id="pt-${p.id}" type="number" value="${p.flat}" min="20" step="5" style="width:60px"/></div><div class="adm-profit">฿${p.flat}</div></div>`; });
+  html+=`<div style="margin-top:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;font-size:9px;color:#6a8aaa;line-height:1.6">
+    ℹ️ กล่อง <strong>10 กก. ขึ้นไป</strong> (P-Large 10–19.99 / P-XL 20–34.99 / P-Bulk 35–50) คำนวณต้นทุนอัตโนมัติ
+    ต่อเนื่องจากค่า P-Medium ด้านบน แบบ "ต้นทุนฐาน + อัตราส่วนเพิ่ม/กก. ที่ลดหลั่นลง"
+    (18 / 14 / 11 บาท·กก. ตามลำดับ) — แก้ค่า P-Medium ปุ๊บ ทุกช่วงกล่องใหญ่จะขยับตามทันที ไม่ต้องตั้งแยก
+  </div>`;
+  html+=`</div>`;
+  html+=`<div class="adm-section"><div class="adm-section-title">📐 น้ำหนักปริมาตร (Volumetric Weight)</div><div class="adm-row"><div><div class="adm-label">ตัวหาร (กว้าง×ยาว×สูง ÷ ตัวหาร)</div><div class="adm-sub">ยิ่งน้อย ยิ่งคิดน้ำหนักปริมาตรสูง (ทางบก 4000-5000 · ทางอากาศ 6000)</div></div><div class="adm-cost"><input class="adm-input" id="vol-divisor" type="number" value="${VOLUMETRIC_DIVISOR}" min="1000" max="8000" step="100" style="width:60px"/></div><div class="adm-profit"></div></div></div>
+  <button class="adm-save-btn" onclick="saveAdminSettings()">💾 บันทึก</button>
+    <button class="adm-export-btn" onclick="exportSettings()">📤 Export JSON</button>
+    <div class="adm-import-area"><div style="font-size:10px;color:#6a8aaa;margin-bottom:4px">📥 Import JSON</div>
+    <textarea id="importArea" placeholder='{"catMarkup":{...}}'></textarea>
+    <button class="adm-import-btn" onclick="importSettings()">📥 นำเข้า</button></div>
+    <button class="adm-reset-btn" onclick="resetSettings()">↺ รีเซ็ต</button>
+    <div style="margin-top:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;font-size:9px;color:#6a8aaa;text-align:center">🔒 Session หมดอายุใน 30 นาที</div>`;
+  document.getElementById('adminContent').innerHTML=html;
+  document.getElementById('adminOverlay').classList.remove('locked');
+  document.querySelectorAll('#adminContent .adm-input').forEach(el=>{ el.addEventListener('input', ()=>{ adminSettingsChanged=true; }); });
+}
+
+function saveAdminSettings(){
+  if(!isAdminSessionValid()){ showToast('⚠️ กรุณาใส่ PIN'); return; }
+  let err=false;
+  CATEGORIES.forEach(c=>{ const el=document.getElementById('mu-'+c.id); if(el){ const v=parseFloat(el.value); if(v>=1&&v<=3) c.markup=v; else{ showToast('⚠️ Markup '+c.label.th+' ต้องอยู่ 1-3'); err=true; } } });
+  const wh=document.getElementById('wh-discount'); if(wh){ const v=parseFloat(wh.value); if(v>=0.5&&v<=1) WAREHOUSE_DISCOUNT=v; else{ showToast('⚠️ Discount ต้องอยู่ 0.5-1'); err=true; } }
+  ['vte','suburb'].forEach(z=>{ const el=document.getElementById('lmcost-'+z); if(el){ const v=parseFloat(el.value); if(v>=0) ANOUSITH_COST[z]=v; else{ showToast('⚠️ ต้นทุนต้อง >0'); err=true; } } });
+  const lakRate=document.getElementById('lak-rate'); if(lakRate){ const v=parseFloat(lakRate.value); if(v>=0.001&&v<=0.003) LAK_TO_THB_RATE=v; else{ showToast('⚠️ อัตราแลกเปลี่ยนต้องอยู่ 0.001-0.003'); err=true; } }
+  const provMargin=document.getElementById('province-margin'); if(provMargin){ const v=parseFloat(provMargin.value); if(v>=1&&v<=2) PROVINCE_LM_MARGIN=v; else{ showToast('⚠️ มาร์จิ้นต้องอยู่ 1-2'); err=true; } }
+  const provMinPrice=document.getElementById('province-min-price'); if(provMinPrice){ const v=parseFloat(provMinPrice.value); if(v>=0) PROVINCE_MIN_PRICE=v; else{ showToast('⚠️ ราคาขั้นต่ำต้อง >= 0'); err=true; } }
+  const addonLight=document.getElementById('lak-addon-light'); if(addonLight){ const v=parseFloat(addonLight.value); if(v>=0) LAK_HOME_ADDON_LIGHT=v; else{ showToast('⚠️ ค่าส่งถึงบ้านต้อง >0'); err=true; } }
+  const addonHeavy=document.getElementById('lak-addon-heavy'); if(addonHeavy){ const v=parseFloat(addonHeavy.value); if(v>=0) LAK_HOME_ADDON_HEAVY=v; else{ showToast('⚠️ ค่าส่งถึงบ้านต้อง >0'); err=true; } }
+  const overage=document.getElementById('lak-overage'); if(overage){ const v=parseFloat(overage.value); if(v>=0) LAK_OVERAGE_PER_KG=v; else{ showToast('⚠️ ค่าเกิน 30กก. ต้อง >0'); err=true; } }
+  PARCEL_TIERS.forEach(p=>{ const el=document.getElementById('pt-'+p.id); if(el){ const v=parseFloat(el.value); if(v>=20) p.flat=v; else{ showToast('⚠️ Parcel rate ต้อง >20'); err=true; } } });
+  const vd=document.getElementById('vol-divisor'); if(vd){ const v=parseFloat(vd.value); if(v>=1000&&v<=8000) VOLUMETRIC_DIVISOR=v; else{ showToast('⚠️ ตัวหารปริมาตรต้องอยู่ 1000-8000'); err=true; } }
+  if(err) return;
+  // ✅ คำนวณน้ำหนักปริมาตร/คิดค่าระวางของกล่องในตะกร้าใหม่ทั้งหมด เผื่อตัวหารเปลี่ยน
+  cart = cart.map(item => makeCartItem(item.id, item.w, item.l, item.h, item.kg, item.qty));
+  try{ localStorage.setItem('savewayAdminSettings', JSON.stringify({catMarkup:Object.fromEntries(CATEGORIES.map(c=>[c.id,c.markup])),warehouseDiscount:WAREHOUSE_DISCOUNT,anousithCost:ANOUSITH_COST,parcelFlat:Object.fromEntries(PARCEL_TIERS.map(p=>[p.id,p.flat])),volumetricDivisor:VOLUMETRIC_DIVISOR,lakToThbRate:LAK_TO_THB_RATE,provinceLmMargin:PROVINCE_LM_MARGIN,provinceMinPrice:PROVINCE_MIN_PRICE,lakAddonLight:LAK_HOME_ADDON_LIGHT,lakAddonHeavy:LAK_HOME_ADDON_HEAVY,lakOveragePerKg:LAK_OVERAGE_PER_KG})); adminSettingsChanged=false; showToast('✅ บันทึกแล้ว'); renderCart(); clearResult(); }
+  catch(e){ showToast('⚠️ บันทึกไม่สำเร็จ'); }
+}
+
+function loadSavedSettings(){
+  try{ const raw=localStorage.getItem('savewayAdminSettings'); if(!raw) return; const s=JSON.parse(raw); if(s.catMarkup) CATEGORIES.forEach(c=>{ if(s.catMarkup[c.id]) c.markup=s.catMarkup[c.id]; }); if(s.warehouseDiscount) WAREHOUSE_DISCOUNT=s.warehouseDiscount; if(s.anousithCost) Object.keys(s.anousithCost).forEach(k=>{ ANOUSITH_COST[k]=s.anousithCost[k]; }); if(s.parcelFlat) PARCEL_TIERS.forEach(p=>{ if(s.parcelFlat[p.id]) p.flat=s.parcelFlat[p.id]; }); if(s.volumetricDivisor) VOLUMETRIC_DIVISOR=s.volumetricDivisor; if(s.lakToThbRate) LAK_TO_THB_RATE=s.lakToThbRate; if(s.provinceLmMargin) PROVINCE_LM_MARGIN=s.provinceLmMargin; if(s.provinceMinPrice!==undefined) PROVINCE_MIN_PRICE=s.provinceMinPrice; if(s.lakAddonLight) LAK_HOME_ADDON_LIGHT=s.lakAddonLight; if(s.lakAddonHeavy) LAK_HOME_ADDON_HEAVY=s.lakAddonHeavy; if(s.lakOveragePerKg) LAK_OVERAGE_PER_KG=s.lakOveragePerKg; }catch(e){}
+}
+
+function exportSettings(){
+  if(!isAdminSessionValid()){ showToast('⚠️ กรุณาใส่ PIN'); return; }
+  const s={catMarkup:Object.fromEntries(CATEGORIES.map(c=>[c.id,c.markup])),warehouseDiscount:WAREHOUSE_DISCOUNT,anousithCost:ANOUSITH_COST,parcelFlat:Object.fromEntries(PARCEL_TIERS.map(p=>[p.id,p.flat])),volumetricDivisor:VOLUMETRIC_DIVISOR,lakToThbRate:LAK_TO_THB_RATE,provinceLmMargin:PROVINCE_LM_MARGIN,provinceMinPrice:PROVINCE_MIN_PRICE,lakAddonLight:LAK_HOME_ADDON_LIGHT,lakAddonHeavy:LAK_HOME_ADDON_HEAVY,lakOveragePerKg:LAK_OVERAGE_PER_KG,version:'1.2',exported:new Date().toISOString()};
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(s,null,2)],{type:'application/json'})); a.download=`saveway-config-${new Date().toISOString().slice(0,10)}.json`; a.click(); showToast('✅ Export สำเร็จ');
+}
+
+function importSettings(){
+  if(!isAdminSessionValid()){ showToast('⚠️ กรุณาใส่ PIN'); return; }
+  const text=document.getElementById('importArea').value; if(!text.trim()){ showToast('⚠️ กรุณาใส่ JSON'); return; }
+  try{ const s=JSON.parse(text); if(s.catMarkup) CATEGORIES.forEach(c=>{ if(s.catMarkup[c.id]) c.markup=s.catMarkup[c.id]; }); if(s.warehouseDiscount) WAREHOUSE_DISCOUNT=s.warehouseDiscount; if(s.anousithCost) Object.keys(s.anousithCost).forEach(k=>{ ANOUSITH_COST[k]=s.anousithCost[k]; }); if(s.parcelFlat) PARCEL_TIERS.forEach(p=>{ if(s.parcelFlat[p.id]) p.flat=s.parcelFlat[p.id]; }); if(s.volumetricDivisor) VOLUMETRIC_DIVISOR=s.volumetricDivisor; if(s.lakToThbRate) LAK_TO_THB_RATE=s.lakToThbRate; if(s.provinceLmMargin) PROVINCE_LM_MARGIN=s.provinceLmMargin; if(s.provinceMinPrice!==undefined) PROVINCE_MIN_PRICE=s.provinceMinPrice; if(s.lakAddonLight) LAK_HOME_ADDON_LIGHT=s.lakAddonLight; if(s.lakAddonHeavy) LAK_HOME_ADDON_HEAVY=s.lakAddonHeavy; if(s.lakOveragePerKg) LAK_OVERAGE_PER_KG=s.lakOveragePerKg; cart = cart.map(item => makeCartItem(item.id, item.w, item.l, item.h, item.kg, item.qty)); saveAdminSettings(); renderAdminPanel(); document.getElementById('importArea').value=''; showToast('✅ นำเข้าเรียบร้อย'); }
+  catch(e){ showToast('⚠️ JSON ไม่ถูกต้อง: '+e.message); }
+}
+
+function resetSettings(){ if(confirm('รีเซ็ตทั้งหมด?')){ localStorage.removeItem('savewayAdminSettings'); location.reload(); } }
+
+// ─── CART FUNCTIONS ──────────────────────────────────────────────────────
+
+function addCartItem(){
+  const w=parseFloat(document.getElementById('addW').value);
+  const l=parseFloat(document.getElementById('addL').value);
+  const h=parseFloat(document.getElementById('addH').value);
+  const kg=parseFloat(document.getElementById('addKg').value);
+  const qty=parseInt(document.getElementById('addQty').value)||1;
+  if(!w||!l||!h||!kg||qty<1){ showToast('⚠️ กรอกให้ครบ'); return; }
+  if(w<1||l<1||h<1||kg<0.01){ showToast('⚠️ กรุณากรอกค่าที่ถูกต้อง'); return; }
+  if(w+l+h>285||kg>50){ showToast('⚠️ กล่องเกินมาตรฐาน (max 285 ซม. / 50 กก.)'); return; }
+  if(editingId){
+    const idx = cart.findIndex(item=>item.id===editingId);
+    if(idx>-1) cart[idx] = makeCartItem(editingId, w, l, h, kg, qty);
+    cancelEditCartItem();
+    showToast('✅ แก้ไขกล่องแล้ว!');
+  } else {
+    cart.push(makeCartItem(Date.now()+'_'+Math.random().toString(36).slice(2,6), w, l, h, kg, qty));
+    showToast('✅ เพิ่มกล่องแล้ว!');
+  }
+  document.getElementById('addW').value=''; document.getElementById('addL').value=''; document.getElementById('addH').value=''; document.getElementById('addKg').value=''; document.getElementById('addQty').value='1';
+  renderCart(); clearResult(); updateBtn();
+}
+
+function editCartItem(id){
+  const idx = cart.findIndex(item=>item.id===id);
+  if(idx===-1) return;
+  const item = cart[idx];
+  editingId = id;
+  document.getElementById('addW').value=item.w;
+  document.getElementById('addL').value=item.l;
+  document.getElementById('addH').value=item.h;
+  document.getElementById('addKg').value=item.kg;
+  document.getElementById('addQty').value=item.qty;
+  document.getElementById('editBadge').style.display='';
+  document.getElementById('editBadgeIdx').textContent=idx+1;
+  const btn=document.getElementById('addBtn'); if(btn) btn.textContent='💾';
+  renderCart();
+  document.getElementById('addW').focus();
+}
+
+function cancelEditCartItem(){
+  editingId = null;
+  document.getElementById('editBadge').style.display='none';
+  const btn=document.getElementById('addBtn'); if(btn) btn.textContent='➕';
+  document.getElementById('addW').value=''; document.getElementById('addL').value=''; document.getElementById('addH').value=''; document.getElementById('addKg').value=''; document.getElementById('addQty').value='1';
+  renderCart();
+}
+
+function removeCartItem(id){ cart=cart.filter(item=>item.id!==id); if(editingId===id) cancelEditCartItem(); renderCart(); clearResult(); updateBtn(); }
+function clearCart(){ if(cart.length===0) return; if(!confirm('🗑️ ล้างตะกร้าทั้งหมด?')) return; cart=[]; if(editingId) cancelEditCartItem(); renderCart(); clearResult(); updateBtn(); }
+
+function renderCart(){
+  const container=document.getElementById('cartItems');
+  const ll=LL[lang];
+  if(cart.length===0){ container.innerHTML=`<div class="cart-empty">${ll.cartEmpty}</div>`; document.getElementById('cartTotalKg').textContent='0'; document.getElementById('cartTotalBoxes').textContent='0'; return; }
+  
+  const cat=catId?CATEGORIES.find(c=>c.id===catId):null;
+  const dirMult=DIR_RATE[dirId]||1;
+  const totalBillKg=cart.reduce((s,i)=>s+i.totalBillKg,0);
+  const totalBoxCountPreview=cart.reduce((s,i)=>s+i.qty,0);
+  const isParcelEligiblePreview = totalBillKg < BULK_THRESHOLD_KG;
+  const lmDiscountPreview = isParcelEligiblePreview ? 0 : getVolTier(totalBillKg).discount;
+  const lmCost = computeLMTotal(cart, lmDiscountPreview);
+  
+  let html='';
+  cart.forEach((item,idx)=>{
+    let preview = '—';
+    let lmTag = '';
+    if(cat){
+      const price = calculateBoxPrice(item, cat, dirMult, totalBillKg, false);
+      if(price !== null) {
+        const modeIcon = isParcelEligiblePreview ? '📦' : '📊';
+        preview = `${modeIcon} ฿${price}`;
+      }
+    }
+    // ✅ FIX: โชว์น้ำหนักปริมาตรเมื่อมันมากกว่าน้ำหนักจริง (กล่องใหญ่-เบา เช่นของฟุ้ง)
+    const isVolDriven = item.volKg > item.kg;
+    const weightHtml = isVolDriven
+      ? `<span class="kg-text">${item.kg} กก.<span class="vol-tag" title="${ll.volHint}">📐${item.billKg} กก.</span></span>`
+      : `<span class="kg-text">${item.kg} กก.</span>`;
+    html+=`<div class="cart-item" style="cursor:pointer;${item.id===editingId?'background:rgba(245,166,35,0.12);border-radius:8px':''}" onclick="editCartItem('${item.id}')">
+      <span class="idx">#${idx+1}</span>
+      <span class="dim-text">${item.w}×${item.l}×${item.h}</span>
+      <span class="sum-text">(= ${item.dim} ซม.)</span>
+      ${weightHtml}
+      <span class="qty-text">×${item.qty}</span>
+      <span class="price-preview">${preview}${lmTag}</span>
+      <button class="del-btn" onclick="event.stopPropagation();removeCartItem('${item.id}')">✕</button>
+    </div>`;
+  });
+  container.innerHTML=html;
+  const totalKgActual=cart.reduce((s,i)=>s+i.totalKg,0);
+  document.getElementById('cartTotalKg').textContent=totalKgActual.toFixed(1);
+  document.getElementById('cartTotalBoxes').textContent=cart.reduce((s,i)=>s+i.qty,0);
+  const lmNoteEl=document.getElementById('cartLmNote');
+  if(lmNoteEl){
+    if(lmCost > 0){
+      lmNoteEl.style.display='';
+      document.getElementById('cartLmValue').textContent=fmt(lmCost);
+      const z=LM_ZONES.find(z=>z.id===lmZone);
+      let detail='';
+      if(z && lmZone==='province'){ detail=`(ตามน้ำหนัก+ส่งถึงบ้าน${lmDiscountPreview>0?` · -${Math.round(lmDiscountPreview*100)}%`:''})`; }
+      else if(z){ const r=getLMRate(lmDiscountPreview); detail=`(฿${r}×${totalBoxCountPreview} กล่อง${lmDiscountPreview>0?` · -${Math.round(lmDiscountPreview*100)}%`:''})`; }
+      document.getElementById('cartLmDetail').textContent=detail;
+    }
+    else { lmNoteEl.style.display='none'; }
+  }
+  const billEl=document.getElementById('cartTotalBillKg');
+  if(billEl){
+    if(totalBillKg > totalKgActual + 0.05){
+      billEl.style.display='';
+      billEl.querySelector('strong').textContent=totalBillKg.toFixed(1);
+    } else {
+      billEl.style.display='none';
+    }
+  }
+}
+
+// ─── CALCULATE ──────────────────────────────────────────────────────────
+
+function calculateCart(){
+  if(cart.length===0){ showToast('⚠️ กรุณาเพิ่มกล่องก่อน'); return; }
+  if(!catId){ showToast('⚠️ กรุณาเลือกประเภทสินค้า'); return; }
+  
+  const cat=CATEGORIES.find(c=>c.id===catId);
+  const ll=LL[lang];
+  const area=document.getElementById('resultArea');
+  const dirMult=DIR_RATE[dirId]||1;
+  const totalKg=cart.reduce((s,i)=>s+i.totalKg,0);
+  // ✅ FIX: น้ำหนักคิดค่าระวางจริง (max ของน้ำหนักจริง vs น้ำหนักปริมาตร) ใช้ตัดสิน tier/ราคา
+  // ส่วนขั้นต่ำหมวดสินค้า (cat.minKg) ยังอิงน้ำหนักจริงตามเดิม เพราะเป็นขั้นต่ำของ "ปริมาณสินค้า"
+  const totalBillKg=cart.reduce((s,i)=>s+i.totalBillKg,0);
+  
+  if(cat.minKg>0 && totalKg<cat.minKg){
+    area.innerHTML=`<div class="warn-box warn-orange"><div class="warn-emoji">⚖️</div><div class="warn-title" style="color:#9a3412">${ll.belowMin(cat.minKg)}</div><div class="warn-sub" style="color:#9a3412">${ll.totalKg}: <strong>${totalKg.toFixed(1)} กก.</strong></div></div>`;
+    return;
+  }
+  
+  const isParcelEligible = totalBillKg < BULK_THRESHOLD_KG;
+  const tier = getVolTier(totalBillKg);
+  const discount = isParcelEligible ? 0 : tier.discount;
+  
+  let grandTotal=0, lineItems=[], allValid=true;
+  
+  for(let item of cart){
+    const pricePerBox = calculateBoxPrice(item, cat, dirMult, totalBillKg, false);
+    if(pricePerBox === null){ allValid=false; continue; }
+    
+    const lineTotal = pricePerBox * item.qty;
+    grandTotal += lineTotal;
+    lineItems.push({...item, pricePerBox, lineTotal});
+  }
+  
+  if(!allValid||lineItems.length===0){
+    area.innerHTML=`<div class="warn-box warn-yellow"><div class="warn-emoji">📦</div><div class="warn-title" style="color:#92400e">${ll.overLimit}</div><div class="warn-sub" style="color:#92400e">${ll.overSub}</div><a href="mailto:savewaypress@gmail.com" class="contact-link">${ll.contact}</a></div>`;
+    return;
+  }
+  
+  const totalBoxCount = lineItems.reduce((s,i)=>s+i.qty,0);
+  const lmRate = (dirId==='la2th'||lmMode==='warehouse'||lmZone==='province') ? 0 : getLMRate(discount);
+  const lmCostOnce = computeLMTotal(lineItems, discount);
+  const grandTotalWithLM = grandTotal + lmCostOnce;
+  const zone = LM_ZONES.find(z=>z.id===lmZone);
+  const pricePerKg = (grandTotalWithLM/totalKg).toFixed(1);
+  const discPct = Math.round(discount*100);
+  const activeTierTag = isParcelEligible?`<span class="tag" style="background:#f59e0b">📦 Parcel</span>`:`<span class="tag" style="background:${tier.color}">${tier.id} ${tier.label[lang]}</span>${discPct>0?`<span class="tag" style="background:#F5A623;color:#7A0F1E">-${discPct}%</span>`:''}`;
+  
+  let linesHtml=`<table class="cart-result-table"><thead><tr><th>#</th><th>${ll.dim}</th><th>${ll.dimSum}</th><th>${ll.weight}</th><th>${ll.qty}</th><th>${ll.price}</th><th>${ll.subtotal}</th></tr></thead><tbody>`;
+  lineItems.forEach((item,idx)=>{ const wCell=item.volKg>item.kg?`${item.kg} กก. <span style="color:#c2410c;font-size:9px">(📐${item.billKg})</span>`:`${item.kg} กก.`; linesHtml+=`<tr><td>${idx+1}</td><td>${item.w}×${item.l}×${item.h}</td><td><strong>${item.dim}</strong> ซม.</td><td>${wCell}</td><td>×${item.qty}</td><td>฿${fmt(item.pricePerBox)}</td><td>฿${fmt(item.lineTotal)}</td></tr>`; });
+  linesHtml+=`<tr class="total-row"><td colspan="6">💰 ${ll.result}</td><td>฿${fmt(grandTotalWithLM)}</td></tr></tbody></table>`;
+  
+  let breakdownHtml=`<div class="breakdown-row"><span>📦 ${ll.totalKg}</span><span>${totalKg.toFixed(1)} kg</span></div>`;
+  if(totalBillKg > totalKg + 0.05) breakdownHtml+=`<div class="breakdown-row"><span>📐 ${ll.cartTotalBillLabel}</span><span>${totalBillKg.toFixed(1)} kg</span></div>`;
+  breakdownHtml+=`<div class="breakdown-row"><span>📊 ${ll.volTier}</span><span>${isParcelEligible?'Parcel (Flat Rate)':tier.id+' '+tier.label[lang]+(discPct>0?` (–${discPct}%)`:'')}</span></div>`;
+  if(lmCostOnce > 0){
+    const lmDesc = lmZone==='province'
+      ? `ตามน้ำหนัก+ส่งถึงบ้าน · ${totalBoxCount} กล่อง${discPct>0?` (–${discPct}%)`:''}`
+      : `฿${lmRate}×${totalBoxCount} กล่อง${discPct>0?` (–${discPct}%)`:''}`;
+    breakdownHtml+=`<div class="breakdown-row"><span>🚚 Last Mile (${zone?zone.label[lang]:''}) · ${lmDesc}</span><span>฿${fmt(lmCostOnce)}</span></div>`;
+  }
+  breakdownHtml+=`<div class="breakdown-row"><span>💳 รวมทั้งสิ้น</span><span>฿${fmt(grandTotalWithLM)}</span></div>`;
+  
+  area.innerHTML=`<div class="result-box" style="background:linear-gradient(135deg,${cat.color},${cat.color}cc)"><div class="result-meta">${cat.icon} ${cat.label[lang]} ${dirMult>1?'<span class="tag" style="background:#F5A623;color:#7A0F1E">×'+dirMult+'</span>':''}<br/>${activeTierTag} &nbsp;·&nbsp; ${totalKg.toFixed(1)} kg · ${lineItems.reduce((s,i)=>s+i.qty,0)} กล่อง</div><div class="result-label">${ll.result}</div><div class="result-price">฿${fmt(grandTotalWithLM)}</div><div class="result-unit">฿${pricePerKg} ${ll.perKg} &nbsp;·&nbsp; ${lineItems.length} รายการ</div>${linesHtml}<div class="breakdown">${breakdownHtml}</div><div class="result-note">${ll.incl}</div><div class="action-bar"><button class="action-btn" onclick="shareCartLink()">🔗 แชร์ Link</button><button class="action-btn" onclick="exportPDF()">📄 PDF</button><button class="reset-btn" style="margin-top:0;flex:1;border-radius:8px" onclick="resetAll()">${ll.reset}</button></div></div>`;
+  
+  renderTierTable(totalBillKg);
+  updateBtn();
+}
+
+function renderTierTable(activeTotalKg){
+  const dirMult=DIR_RATE[dirId]||1;
+  const parcelRows=PARCEL_TIERS.map(t=>{ const a=activeTotalKg!==undefined&&activeTotalKg>=t.minKg&&activeTotalKg<=t.maxKg; const fp=t.flat*dirMult; return `<tr class="${a?'active-tier':''}" style="background:${t.color}0a"><td><span class="tier-badge" style="background:${t.color}">${t.id}</span> ${t.label[lang]}</td><td>${t.range[lang]}</td><td style="color:${t.color};font-weight:700">Flat ฿${fp}</td></tr>`; }).join('');
+  const volRows=VOL_TIERS.map(t=>{ const a=activeTotalKg!==undefined&&activeTotalKg>=t.minKg&&activeTotalKg<=t.maxKg; const d=Math.round(t.discount*100); return `<tr class="${a?'active-tier':''}"><td><span class="tier-badge" style="background:${t.color}">${t.id}</span> ${t.label[lang]}</td><td>${t.range[lang]}</td><td style="color:${d>0?'#166534':'#999'};font-weight:${d>0?700:400}">${d>0?`-${d}%`:'–'}</td></tr>`; }).join('');
+  document.getElementById('tierBody').innerHTML=parcelRows+volRows;
+}
+
+// ─── UI RENDER ────────────────────────────────────────────────────────────
+
+function setLang(l, ev){ lang=l; document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active')); if(ev?.target) ev.target.classList.add('active'); else{ const map={th:'ไทย',en:'EN',lo:'ລາວ'}; document.querySelectorAll('.lang-btn').forEach(b=>{ if(b.textContent.trim()===map[lang]) b.classList.add('active'); }); } render(); }
+function setCat(id){ catId=id; clearResult(); render(); updateBtn(); }
+function setDir(d){ dirId=d; if(d==='la2th'){ lmMode='warehouse'; lmZone='vte'; } clearResult(); render(); updateBtn(); }
+function setLM(mode){ lmMode=mode; document.getElementById('lm-warehouse').classList.toggle('active',mode==='warehouse'); document.getElementById('lm-delivery').classList.toggle('active',mode==='delivery'); document.getElementById('lmZoneArea').classList.toggle('show',mode==='delivery'); clearResult(); render(); updateBtn(); }
+function setZone(z){ lmZone=z; clearResult(); render(); }
+function clearResult(){ document.getElementById('resultArea').innerHTML=''; }
+function updateBtn(){ const btn=document.getElementById('calcBtn'); const ready=catId&&cart.length>0; btn.classList.toggle('ready',!!ready); btn.disabled=!ready; btn.textContent=LL[lang].calc; }
+
+function render(){
+  const ll=LL[lang], dirs=DIRS[lang];
+  document.getElementById('hTitle').textContent=ll.title;
+  document.getElementById('hSub').textContent=ll.sub;
+  document.getElementById('parcelTitle').textContent=ll.parcelTitle;
+  const dm=DIR_RATE[dirId]||1;
+  const p0=PARCEL_TIERS[0].flat*dm, p1=PARCEL_TIERS[1].flat*dm, p2=PARCEL_TIERS[2].flat*dm;
+  document.getElementById('parcelDesc').innerHTML=ll.parcelDescFn(p0,p1,p2);
+  document.getElementById('s0Label').textContent=ll.s0;
+  document.getElementById('dir0Label').textContent=dirs[0].label;
+  document.getElementById('dir0Sub').textContent=dirs[0].sub;
+  document.getElementById('dir1Label').textContent=dirs[1].label;
+  document.getElementById('dir1Sub').textContent=dirs[1].sub;
+  document.getElementById('btn-th2la').classList.toggle('active',dirId==='th2la');
+  document.getElementById('btn-la2th').classList.toggle('active',dirId==='la2th');
+  document.getElementById('la2thMultTag').textContent='×'+DIR_RATE.la2th;
+  const la2thNote=document.getElementById('la2thNote');
+  la2thNote.style.display=(dirId==='la2th')?'':'none';
+  la2thNote.textContent=ll.la2thNote;
+  document.getElementById('sTierLabel').textContent=ll.sTier;
+  document.getElementById('thTier').textContent=ll.thTier;
+  document.getElementById('thRange').textContent=ll.thRange;
+  document.getElementById('thDiscount').textContent=ll.thDiscount;
+  document.getElementById('s1Label').textContent=ll.s1;
+  document.getElementById('sCartLabel').textContent=ll.sCart;
+  document.getElementById('cartTotalLabel').textContent=ll.cartTotal;
+  document.getElementById('cartTotalBillLabel').textContent=ll.cartTotalBillLabel;
+  document.getElementById('cartBoxesLabel').textContent=ll.cartBoxes;
+  document.getElementById('noteText').textContent=ll.note;
+  document.getElementById('notTitle').textContent=ll.notAccepted;
+  
+  document.getElementById('catGrid').innerHTML=CATEGORIES.map(c=>`<button class="cat-btn ${catId===c.id?'active':''}" onclick="setCat('${c.id}')" style="${catId===c.id?`border-color:${c.color};background:${c.color}12`:''}"><div class="cat-icon">${c.icon}</div><div class="cat-name" style="${catId===c.id?`color:${c.color}`:'color:#222'}">${c.label[lang]}</div><div class="cat-sub">${c.sub[lang]}</div><div class="cat-badge">${c.minLabel[lang]}</div></button>`).join('');
+  
+  document.getElementById('notTags').innerHTML=NOT_ACCEPTED[lang].map(t=>`<span class="not-tag">${t}</span>`).join('');
+  
+  document.getElementById('lmSection').style.display=(dirId==='la2th')?'none':'';
+  if(dirId!=='la2th'){ const lml=LM_LABELS[lang]; document.getElementById('s3Label').textContent=lml.s3; document.getElementById('s3bLabel').textContent=lml.s3b; document.getElementById('lm0Label').textContent=lml.lm0; document.getElementById('lm0Sub').textContent=lml.lm0sub; document.getElementById('lm0Price').textContent=lml.lm0price; document.getElementById('lm1Label').textContent=lml.lm1; document.getElementById('lm1Sub').textContent=lml.lm1sub; document.getElementById('lm1Price').textContent=lml.lm1price; document.getElementById('lmZoneArea').classList.toggle('show',lmMode==='delivery'); renderZones(); }
+  
+  renderCart();
+  renderTierTable();
+  updateBtn();
+}
+
+function renderZones(){
+  const zg=document.getElementById('zoneGrid');
+  if(!zg) return;
+  zg.innerHTML=LM_ZONES.map(z=>`<button class="zone-btn ${lmZone===z.id?'active':''}" onclick="setZone('${z.id}')" style="${lmZone===z.id?`border-color:${z.color};background:${z.color}`:''}">${z.label[lang]}<br/><span style="font-weight:400;font-size:8px">${z.sub[lang]}</span></button>`).join('');
+}
+
+function resetAll(){ catId=null; cart=[]; clearResult(); render(); updateBtn(); showToast('🔄 รีเซ็ตแล้ว'); }
+
+// ─── SHARE & PDF ──────────────────────────────────────────────────────────
+
+function shareCartLink(){
+  if(cart.length===0){ showToast('⚠️ ไม่มีรายการ'); return; }
+  const data={cat:catId,dir:dirId,lm:lmMode,zone:lmZone,lang:lang,cart:cart.map(item=>({w:item.w,l:item.l,h:item.h,kg:item.kg,qty:item.qty}))};
+  const url=location.origin+location.pathname+'?cart='+btoa(encodeURIComponent(JSON.stringify(data)));
+  if(navigator.clipboard){ navigator.clipboard.writeText(url).then(()=>showToast('✅ คัดลอก Link แล้ว!')); }
+  else{ const ta=document.createElement('textarea'); ta.value=url; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('✅ คัดลอก Link แล้ว!'); }
+}
+
+function loadCartFromURL(){
+  const b64=new URLSearchParams(location.search).get('cart');
+  if(!b64) return;
+  try{ const data=JSON.parse(decodeURIComponent(atob(b64))); if(data.lang) lang=data.lang; if(data.cat) catId=data.cat; if(data.dir) dirId=data.dir; if(data.lm) lmMode=data.lm; if(data.zone) lmZone=data.zone; if(data.cart?.length>0){ cart=data.cart.map(item=>makeCartItem(Date.now()+'_'+Math.random().toString(36).slice(2,6), item.w, item.l, item.h, item.kg, item.qty)); } render(); const map={th:'ไทย',en:'EN',lo:'ລາວ'}; document.querySelectorAll('.lang-btn').forEach(b=>{ b.classList.toggle('active',b.textContent.trim()===map[lang]); }); setTimeout(calculateCart,300); }catch(e){}
+}
+
+function exportPDF(){
+  const now=new Date();
+  document.getElementById('printDate').textContent='วันที่ออกใบเสนอราคา: '+now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})+' '+now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  const cat=catId?CATEGORIES.find(c=>c.id===catId):null;
+  if(cat) document.title=`Saveway Express · Quote · ${cat.label.th} · ${now.toISOString().slice(0,10)}`;
+  window.print();
+  document.title='Saveway Express · Wholesale Shipping Calculator';
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+
+loadSavedSettings();
+render();
+loadCartFromURL();
+
+// Demo data
+if(cart.length===0 && !window.location.search.includes('cart=')){
+  cart=[
+    makeCartItem('demo1',55,55,55,5,2),
+    makeCartItem('demo2',42,55,11,5,1),
+    makeCartItem('demo3',87,45,54,4,1),
+  ];
+  catId='fashion';
+  render();
+  updateBtn();
+  setTimeout(calculateCart, 200);
+}
+</script>
+</body>
+</html>
