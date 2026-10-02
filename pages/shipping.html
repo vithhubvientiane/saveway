@@ -194,7 +194,7 @@ body{min-height:100vh;background:linear-gradient(160deg,#7A0F1E 0%,#5c0d18 55%,#
   body{background:#fff!important;padding:0!important;display:block}
   .lang-bar,.parcel-banner,.dir-grid,.tier-table,.cat-grid,.cart-add-row,
   .lm-section,.calc-btn,.action-bar,.reset-btn,.not-accepted,.footer,
-  .adm-fab,#adminOverlay,.warn-box{display:none!important}
+  .adm-fab,#adminOverlay,.warn-box,.profit-admin{display:none!important}
   .wrap{max-width:100%}
   .card{box-shadow:none!important;border-radius:0!important}
   .card-body{padding:0!important}
@@ -726,6 +726,39 @@ function interpolateParcelCost(kg){
   if(kg <= 5) return pMini + (pSmall - pMini) * ((kg - 1) / 4);
   return pSmall + (pMedium - pSmall) * ((kg - 5) / 5); // kg <= 10
 }
+// ✅ ต้นทุนต่อกล่องจากตารางราคาพรแก้ว (หนองคาย → เวียงจันทน์)
+// แบ่งตามขนาด (กว้าง+ยาว+สูง ซม.) และน้ำหนักจริง — ใช้รหัสที่สูงกว่า
+const SIZE_CLASSES = [
+  {id:'MINI',dim:30, kg:1,  cost:30},
+  {id:'A',   dim:40, kg:2,  cost:40},
+  {id:'A+',  dim:50, kg:3,  cost:50},
+  {id:'B',   dim:60, kg:4,  cost:60},
+  {id:'B+',  dim:70, kg:5,  cost:70},
+  {id:'C',   dim:80, kg:6,  cost:80},
+  {id:'C+',  dim:90, kg:8,  cost:100},
+  {id:'D',   dim:100,kg:10, cost:120},
+  {id:'D+',  dim:120,kg:12, cost:150},
+  {id:'E',   dim:130,kg:15, cost:180},
+  {id:'E+',  dim:140,kg:18, cost:200},
+  {id:'F',   dim:160,kg:21, cost:250},
+  {id:'F+',  dim:180,kg:29, cost:300},
+  {id:'G',   dim:200,kg:39, cost:350},
+];
+function getBoxBaseCostForItem(item){
+  const last = SIZE_CLASSES[SIZE_CLASSES.length-1];
+  // ไม่เกินรหัส G → ใช้ตาราง
+  if(item.dim <= last.dim && item.kg <= last.kg){
+    const bySize   = SIZE_CLASSES.findIndex(c=>item.dim <= c.dim);
+    const byWeight = SIZE_CLASSES.findIndex(c=>item.kg  <= c.kg);
+    const c = SIZE_CLASSES[Math.max(bySize, byWeight)];
+    return { flat: c.cost, id: c.id, label: 'ขนาด '+c.id };
+  }
+  // Over size (> 200 ซม. หรือ > 39 กก.) — ตารางไม่มีราคา ใช้สูตรเดิมต่อจากรหัส G (350 บ.)
+  // 350 + อัตราส่วนเพิ่ม bulk บาท/กก. ส่วนที่เกิน 39 กก. (ใช้ที่สูงกว่าระหว่างน้ำหนักจริงกับน้ำหนักปริมาตร)
+  const effKg = Math.max(item.billKg, last.kg);
+  const cost = last.cost + BOX_MARGINAL_RATE.bulk * (effKg - last.kg);
+  return { flat: Math.ceil(cost/5)*5, id:'OVER', label:'Over size' };
+}
 function getBoxBaseCost(kg){
   const pMedium = PARCEL_TIERS.find(t=>t.id==='P-Medium').flat;
 
@@ -799,38 +832,26 @@ function makeCartItem(id, w, l, h, kg, qty){
 
 // ✅ ฟังก์ชันกลางสำหรับคำนวณราคาต่อกล่อง (ใช้ทั้ง Preview และ Calculate)
 // totalBillKg = น้ำหนักคิดค่าระวางรวมทั้งออเดอร์ (ไม่ใช่น้ำหนักจริง) — ใช้ตัดสิน tier/parcel eligibility
-function calculateBoxPrice(item, cat, dirMult, totalBillKg, includeLM = true) {
+function priceFromBase(baseFlat, cat, dirMult, totalBillKg, warehouse){
   const isParcelEligible = totalBillKg < BULK_THRESHOLD_KG;
   const tier = getVolTier(totalBillKg);
   const discount = isParcelEligible ? 0 : tier.discount;
-  
-  // ✅ FIX: ใช้ getBoxBaseCost() ซึ่งรองรับทุกน้ำหนักกล่อง 0.01–50 กก. ต่อเนื่องกัน
-  // (แก้บั๊กเดิม: กล่อง ≥10 กก. ในออเดอร์ bulk เคยคืนค่า null → ฟ้อง "เกินมาตรฐาน")
-  // ✅ FIX: ใช้ item.billKg (น้ำหนักคิดค่าระวาง = max(น้ำหนักจริง, น้ำหนักปริมาตร))
-  // แทน item.kg เดิม เพื่อป้องกันกล่องใหญ่-เบา (ของฟุ้ง) ถูกคิดราคาต่ำกว่าต้นทุนที่ระวางจริง
-  let pt = getBoxBaseCost(item.billKg);
-  if(!pt) return null;
-  
   const effMarkup = cat.markup * (1 - discount) * dirMult;
-  let price = Math.ceil(pt.flat * effMarkup / 5) * 5;
-  
-  // Floor Price
+  let price = Math.ceil(baseFlat * effMarkup / 5) * 5;
   if(isParcelEligible) {
-    let floorBase = pt.flat * dirMult;
-    let floorPrice = Math.ceil(floorBase / 5) * 5;
-    if(lmMode === 'warehouse') {
-      floorPrice = Math.ceil(floorPrice * WAREHOUSE_DISCOUNT / 5) * 5;
-    }
+    let floorPrice = Math.ceil(baseFlat * dirMult / 5) * 5;
+    if(warehouse) floorPrice = Math.ceil(floorPrice * WAREHOUSE_DISCOUNT / 5) * 5;
     price = Math.max(price, floorPrice);
-  } else if(lmMode === 'warehouse') {
+  } else if(warehouse) {
     price = Math.ceil(price * WAREHOUSE_DISCOUNT / 5) * 5;
   }
-  
-  if(includeLM) {
-    const lmCost = getLMCost();
-    price += lmCost;
-  }
-  
+  return price;
+}
+function calculateBoxPrice(item, cat, dirMult, totalBillKg, includeLM = true) {
+  let pt = getBoxBaseCostForItem(item);
+  if(!pt) return null;
+  let price = priceFromBase(pt.flat, cat, dirMult, totalBillKg, lmMode === 'warehouse');
+  if(includeLM) price += getLMCost();
   return price;
 }
 
@@ -912,15 +933,14 @@ function renderAdminPanel(){
     <div style="margin-top:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;font-size:9px;color:#6a8aaa;line-height:1.6">
       ℹ️ ตารางฐาน 1–30 กก. อ้างอิงเรตจริงจาก Anousith Express (คอลัมน์ราคาปกติ ยังไม่ถึงยอด 1,000/เดือน) — แก้ได้เฉพาะอัตราแลกเปลี่ยน/มาร์จิ้น/ค่าส่งถึงบ้านที่นี่ ถ้า Saveway ถึงยอดคอมมิต 1,000 หรือ 1,500 พัสดุ/เดือนแล้ว ค่อยขอตารางเรตใหม่มาอัปเดต
     </div></div>`;
-  html+=`<div class="adm-section"><div class="adm-section-title">📫 Parcel Pricing (กล่อง &lt; 10 กก. — ไล่ระดับต่อเนื่อง)</div>`;
-  const anchorKgLabel={'P-Mini':'ที่ 1 กก.','P-Small':'ที่ 5 กก.','P-Medium':'ที่ 10 กก.'};
-  PARCEL_TIERS.forEach(p=>{ html+=`<div class="adm-row"><div><div class="adm-label">${p.id} ${p.label.th}</div><div class="adm-sub">ราคา ณ ${anchorKgLabel[p.id]||p.range.th} (จุดต่อ ramp)</div></div><div class="adm-cost">฿<input class="adm-input" id="pt-${p.id}" type="number" value="${p.flat}" min="20" step="5" style="width:60px"/></div><div class="adm-profit">฿${p.flat}</div></div>`; });
+  html+=`<div class="adm-section"><div class="adm-section-title">📫 ต้นทุนตามขนาด/น้ำหนัก (ตารางพรแก้ว)</div>`;
+  SIZE_CLASSES.forEach(c=>{ html+=`<div class="adm-row"><div><div class="adm-label">${c.id}</div><div class="adm-sub">≤ ${c.dim} ซม. · ≤ ${c.kg} กก.</div></div><div class="adm-profit">฿${c.cost}</div></div>`; });
   html+=`<div style="margin-top:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;font-size:9px;color:#6a8aaa;line-height:1.6">
-    ℹ️ กล่อง <strong>10 กก. ขึ้นไป</strong> (P-Large 10–19.99 / P-XL 20–34.99 / P-Bulk 35–50) คำนวณต้นทุนอัตโนมัติ
-    ต่อเนื่องจากค่า P-Medium ด้านบน แบบ "ต้นทุนฐาน + อัตราส่วนเพิ่ม/กก. ที่ลดหลั่นลง"
-    (18 / 14 / 11 บาท·กก. ตามลำดับ) — แก้ค่า P-Medium ปุ๊บ ทุกช่วงกล่องใหญ่จะขยับตามทันที ไม่ต้องตั้งแยก
+    ℹ️ เลือกรหัสที่สูงกว่าระหว่างขนาด (กว้าง+ยาว+สูง) กับน้ำหนักจริง · เกิน 200 ซม. หรือ 39 กก. คิด 350 + ${BOX_MARGINAL_RATE.bulk} บ./กก. ส่วนที่เกิน 39 กก.
+    · แก้ราคาได้ที่ค่า SIZE_CLASSES ในโค้ด
   </div>`;
   html+=`</div>`;
+  html+=renderMarginSection();
   html+=`<div class="adm-section"><div class="adm-section-title">📐 น้ำหนักปริมาตร (Volumetric Weight)</div><div class="adm-row"><div><div class="adm-label">ตัวหาร (กว้าง×ยาว×สูง ÷ ตัวหาร)</div><div class="adm-sub">ยิ่งน้อย ยิ่งคิดน้ำหนักปริมาตรสูง (ทางบก 4000-5000 · ทางอากาศ 6000)</div></div><div class="adm-cost"><input class="adm-input" id="vol-divisor" type="number" value="${VOLUMETRIC_DIVISOR}" min="1000" max="8000" step="100" style="width:60px"/></div><div class="adm-profit"></div></div></div>
   <button class="adm-save-btn" onclick="saveAdminSettings()">💾 บันทึก</button>
     <button class="adm-export-btn" onclick="exportSettings()">📤 Export JSON</button>
@@ -932,6 +952,56 @@ function renderAdminPanel(){
   document.getElementById('adminContent').innerHTML=html;
   document.getElementById('adminOverlay').classList.remove('locked');
   document.querySelectorAll('#adminContent .adm-input').forEach(el=>{ el.addEventListener('input', ()=>{ adminSettingsChanged=true; }); });
+}
+
+// ─── MARGIN MATRIX (Admin) ───────────────────────────────────────────────
+// ตารางกำไร = ราคาที่ลูกค้าจ่ายจริง (สูตรเดียวกับ calculateBoxPrice) − ต้นทุนตารางพรแก้ว
+let mmState = { cat:'beauty', dir:'th2la', wh:false, tier:'parcel' };
+const MM_TIERS = [
+  {id:'parcel', label:'Parcel (<30 กก.)', kg:10},
+  {id:'M',  label:'Small Wholesale 30–99 (-5%)', kg:50},
+  {id:'L',  label:'Distributor 100–299 (-10%)', kg:150},
+  {id:'XL', label:'Key Account 300+ (-15%)', kg:400},
+];
+function mmRows(){
+  const cat=CATEGORIES.find(c=>c.id===mmState.cat);
+  const dirMult=DIR_RATE[mmState.dir]||1;
+  const totalBillKg=(MM_TIERS.find(t=>t.id===mmState.tier)||MM_TIERS[0]).kg;
+  return SIZE_CLASSES.map(c=>{
+    const cost=c.cost;
+    const price=priceFromBase(c.cost, cat, dirMult, totalBillKg, mmState.wh);
+    const profit=price-cost;
+    const pct=price>0?profit/price*100:0;
+    return {id:c.id, dim:c.dim, kg:c.kg, cost, price, profit, pct};
+  });
+}
+function mmClass(pct){ return pct<0?'#f87171':(pct<10?'#fbbf24':'#4ade80'); }
+function renderMarginTable(){
+  const rows=mmRows();
+  const loss=rows.filter(r=>r.profit<0).length, low=rows.filter(r=>r.profit>=0&&r.pct<10).length;
+  const min=rows.reduce((a,b)=>b.pct<a.pct?b:a), max=rows.reduce((a,b)=>b.pct>a.pct?b:a);
+  let h=`<div style="font-size:10px;margin:8px 0;line-height:1.7;color:#cbd5e1">`+
+    (loss?`<span style="color:#f87171;font-weight:800">⚠️ ขาดทุน ${loss} ขนาด</span> · `:`<span style="color:#4ade80;font-weight:800">✅ ไม่มีขนาดไหนขาดทุน</span> · `)+
+    (low?`<span style="color:#fbbf24">กำไรบาง (&lt;10%) ${low} ขนาด</span> · `:'')+
+    `ต่ำสุด ${min.id} ${min.pct.toFixed(0)}% · สูงสุด ${max.id} ${max.pct.toFixed(0)}%</div>`;
+  h+=`<div style="overflow-x:auto"><table class="cart-result-table" style="color:#e2e8f0;min-width:340px"><thead><tr><th>รหัส</th><th>ขนาด/น้ำหนัก</th><th>ต้นทุน</th><th>ราคาขาย</th><th>กำไร</th><th>%</th></tr></thead><tbody>`;
+  rows.forEach(r=>{ const col=mmClass(r.pct);
+    h+=`<tr><td><strong>${r.id}</strong></td><td>≤${r.dim}ซม. · ≤${r.kg}กก.</td><td>฿${fmt(r.cost)}</td><td>฿${fmt(r.price)}</td><td style="color:${col};font-weight:800">${r.profit<0?'-':'+'}฿${fmt(Math.abs(r.profit))}</td><td style="color:${col};font-weight:800">${r.pct.toFixed(0)}%</td></tr>`; });
+  h+=`</tbody></table></div>`;
+  h+=`<div style="font-size:9px;color:#6a8aaa;margin-top:6px;line-height:1.6">กำไร = ราคาขาย − ต้นทุนตารางพรแก้ว (ยังไม่รวมค่า Last Mile) · % = กำไร ÷ ราคาขาย · 🟢 ≥10% · 🟡 0–10% · 🔴 ขาดทุน<br/>คำนวณจากค่าที่ <u>บันทึกแล้ว</u> — แก้ markup/ส่วนลดแล้วกด 💾 บันทึก ตารางจะอัปเดต</div>`;
+  return h;
+}
+function mmSet(k,v){ mmState[k]=v; const el=document.getElementById('mmTable'); if(el) el.innerHTML=renderMarginTable(); }
+function renderMarginSection(){
+  const sel=(k,opts)=>`<select onchange="mmSet('${k}', this.value==='true'?true:this.value==='false'?false:this.value)" style="flex:1;min-width:120px;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:11px;font-family:'Sarabun',sans-serif">${opts.map(o=>`<option style="color:#000" value="${o[0]}" ${String(mmState[k])===String(o[0])?'selected':''}>${o[1]}</option>`).join('')}</select>`;
+  return `<div class="adm-section"><div class="adm-section-title">📈 ตารางกำไร (ราคาที่ให้ลูกค้า vs ต้นทุน)</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      ${sel('cat',CATEGORIES.map(c=>[c.id,c.icon+' '+c.label.th]))}
+      ${sel('dir',[['th2la','ไทย → ลาว'],['la2th','ลาว → ไทย (×2)']])}
+      ${sel('wh',[[false,'🚚 ปกติ'],[true,'🏭 ลูกค้ามารับเอง']])}
+      ${sel('tier',MM_TIERS.map(t=>[t.id,t.label]))}
+    </div>
+    <div id="mmTable">${renderMarginTable()}</div></div>`;
 }
 
 function saveAdminSettings(){
@@ -1156,8 +1226,41 @@ function calculateCart(){
     breakdownHtml+=`<div class="breakdown-row"><span>🚚 Last Mile (${zone?zone.label[lang]:''}) · ${lmDesc}</span><span>฿${fmt(lmCostOnce)}</span></div>`;
   }
   breakdownHtml+=`<div class="breakdown-row"><span>💳 รวมทั้งสิ้น</span><span>฿${fmt(grandTotalWithLM)}</span></div>`;
+
+  // 🔒 กำไรต่อกล่อง — แสดงเฉพาะตอนปลดล็อค Admin และไม่ติดไปกับ PDF/พิมพ์
+  let profitHtml='';
+  if(isAdminUnlocked && isAdminSessionValid()){
+    let totalProfit=0, totalCost=0;
+    let rows='';
+    lineItems.forEach((item,idx)=>{
+      const cost=getBoxBaseCostForItem(item).flat;
+      const profit=item.pricePerBox-cost;
+      const line=profit*item.qty;
+      totalProfit+=line; totalCost+=cost*item.qty;
+      const pct=item.pricePerBox>0?Math.round(profit/item.pricePerBox*100):0;
+      rows+=`<tr><td>${idx+1}</td><td>฿${fmt(cost)}</td><td>฿${fmt(item.pricePerBox)}</td><td style="color:${profit>=0?'#166534':'#b91c1c'};font-weight:800">฿${fmt(profit)} (${pct}%)</td><td>×${item.qty}</td><td>฿${fmt(line)}</td></tr>`;
+    });
+    // Last Mile: รายได้ − ต้นทุนผู้ให้บริการ
+    let lmProfit=0;
+    if(lmCostOnce>0){
+      if(lmZone==='province'){
+        lineItems.forEach(it=>{ const c=getProvinceBoxCostTHB(it); const rev=Math.max(Math.round(c*PROVINCE_LM_MARGIN*(1-discount)),PROVINCE_MIN_PRICE); lmProfit+=(rev-c)*it.qty; totalCost+=c*it.qty; });
+      } else {
+        const c=(ANOUSITH_COST[lmZone]||0)*totalBoxCount; lmProfit=lmCostOnce-c; totalCost+=c;
+      }
+      totalProfit+=lmProfit;
+    }
+    const totalPct=grandTotalWithLM>0?Math.round(totalProfit/grandTotalWithLM*100):0;
+    profitHtml=`<div class="profit-admin" style="margin-top:10px;padding:10px;background:rgba(0,0,0,.25);border-radius:10px;font-size:11px">
+      <div style="font-weight:800;margin-bottom:6px">🔒 กำไร (เฉพาะแอดมิน — ไม่ติดไปกับ PDF)</div>
+      <table class="cart-result-table"><thead><tr><th>#</th><th>ต้นทุน/กล่อง</th><th>ราคา/กล่อง</th><th>กำไร/กล่อง</th><th>จำนวน</th><th>กำไรรวม</th></tr></thead><tbody>${rows}</tbody></table>
+      ${lmCostOnce>0?`<div class="breakdown-row"><span>🚚 กำไร Last Mile</span><span>฿${fmt(lmProfit)}</span></div>`:''}
+      <div class="breakdown-row" style="font-weight:800"><span>💵 กำไรรวมทั้งออเดอร์</span><span>฿${fmt(totalProfit)} (${totalPct}%)</span></div>
+      <div class="breakdown-row"><span>ต้นทุนรวม</span><span>฿${fmt(totalCost)}</span></div>
+    </div>`;
+  }
   
-  area.innerHTML=`<div class="result-box" style="background:linear-gradient(135deg,${cat.color},${cat.color}cc)"><div class="result-meta">${cat.icon} ${cat.label[lang]} ${dirMult>1?'<span class="tag" style="background:#F5A623;color:#7A0F1E">×'+dirMult+'</span>':''}<br/>${activeTierTag} &nbsp;·&nbsp; ${totalKg.toFixed(1)} kg · ${lineItems.reduce((s,i)=>s+i.qty,0)} กล่อง</div><div class="result-label">${ll.result}</div><div class="result-price">฿${fmt(grandTotalWithLM)}</div><div class="result-unit">฿${pricePerKg} ${ll.perKg} &nbsp;·&nbsp; ${lineItems.length} รายการ</div>${linesHtml}<div class="breakdown">${breakdownHtml}</div><div class="result-note">${ll.incl}</div><div class="action-bar"><button class="action-btn" onclick="shareCartLink()">🔗 แชร์ Link</button><button class="action-btn" onclick="exportPDF()">📄 PDF</button><button class="action-btn" onclick="printAddress()">🖨️ พิมพ์ที่อยู่จัดส่ง</button><button class="reset-btn" style="margin-top:0;flex:1;border-radius:8px" onclick="resetAll()">${ll.reset}</button></div></div>`;
+  area.innerHTML=`<div class="result-box" style="background:linear-gradient(135deg,${cat.color},${cat.color}cc)"><div class="result-meta">${cat.icon} ${cat.label[lang]} ${dirMult>1?'<span class="tag" style="background:#F5A623;color:#7A0F1E">×'+dirMult+'</span>':''}<br/>${activeTierTag} &nbsp;·&nbsp; ${totalKg.toFixed(1)} kg · ${lineItems.reduce((s,i)=>s+i.qty,0)} กล่อง</div><div class="result-label">${ll.result}</div><div class="result-price">฿${fmt(grandTotalWithLM)}</div><div class="result-unit">฿${pricePerKg} ${ll.perKg} &nbsp;·&nbsp; ${lineItems.length} รายการ</div>${linesHtml}<div class="breakdown">${breakdownHtml}</div>${profitHtml}<div class="result-note">${ll.incl}</div><div class="action-bar"><button class="action-btn" onclick="shareCartLink()">🔗 แชร์ Link</button><button class="action-btn" onclick="exportPDF()">📄 PDF</button><button class="action-btn" onclick="printAddress()">🖨️ พิมพ์ที่อยู่จัดส่ง</button><button class="reset-btn" style="margin-top:0;flex:1;border-radius:8px" onclick="resetAll()">${ll.reset}</button></div></div>`;
   
   renderTierTable(totalBillKg);
   updateBtn();
