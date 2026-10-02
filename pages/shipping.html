@@ -1157,7 +1157,7 @@ function calculateCart(){
   }
   breakdownHtml+=`<div class="breakdown-row"><span>💳 รวมทั้งสิ้น</span><span>฿${fmt(grandTotalWithLM)}</span></div>`;
   
-  area.innerHTML=`<div class="result-box" style="background:linear-gradient(135deg,${cat.color},${cat.color}cc)"><div class="result-meta">${cat.icon} ${cat.label[lang]} ${dirMult>1?'<span class="tag" style="background:#F5A623;color:#7A0F1E">×'+dirMult+'</span>':''}<br/>${activeTierTag} &nbsp;·&nbsp; ${totalKg.toFixed(1)} kg · ${lineItems.reduce((s,i)=>s+i.qty,0)} กล่อง</div><div class="result-label">${ll.result}</div><div class="result-price">฿${fmt(grandTotalWithLM)}</div><div class="result-unit">฿${pricePerKg} ${ll.perKg} &nbsp;·&nbsp; ${lineItems.length} รายการ</div>${linesHtml}<div class="breakdown">${breakdownHtml}</div><div class="result-note">${ll.incl}</div><div class="action-bar"><button class="action-btn" onclick="shareCartLink()">🔗 แชร์ Link</button><button class="action-btn" onclick="exportPDF()">📄 PDF</button><button class="reset-btn" style="margin-top:0;flex:1;border-radius:8px" onclick="resetAll()">${ll.reset}</button></div></div>`;
+  area.innerHTML=`<div class="result-box" style="background:linear-gradient(135deg,${cat.color},${cat.color}cc)"><div class="result-meta">${cat.icon} ${cat.label[lang]} ${dirMult>1?'<span class="tag" style="background:#F5A623;color:#7A0F1E">×'+dirMult+'</span>':''}<br/>${activeTierTag} &nbsp;·&nbsp; ${totalKg.toFixed(1)} kg · ${lineItems.reduce((s,i)=>s+i.qty,0)} กล่อง</div><div class="result-label">${ll.result}</div><div class="result-price">฿${fmt(grandTotalWithLM)}</div><div class="result-unit">฿${pricePerKg} ${ll.perKg} &nbsp;·&nbsp; ${lineItems.length} รายการ</div>${linesHtml}<div class="breakdown">${breakdownHtml}</div><div class="result-note">${ll.incl}</div><div class="action-bar"><button class="action-btn" onclick="shareCartLink()">🔗 แชร์ Link</button><button class="action-btn" onclick="exportPDF()">📄 PDF</button><button class="action-btn" onclick="printAddress()">🖨️ พิมพ์ที่อยู่จัดส่ง</button><button class="reset-btn" style="margin-top:0;flex:1;border-radius:8px" onclick="resetAll()">${ll.reset}</button></div></div>`;
   
   renderTierTable(totalBillKg);
   updateBtn();
@@ -1177,6 +1177,40 @@ function setCat(id){ catId=id; clearResult(); render(); updateBtn(); }
 function setDir(d){ dirId=d; if(d==='la2th'){ lmMode='warehouse'; lmZone='vte'; } clearResult(); render(); updateBtn(); }
 function setLM(mode){ lmMode=mode; document.getElementById('lm-warehouse').classList.toggle('active',mode==='warehouse'); document.getElementById('lm-delivery').classList.toggle('active',mode==='delivery'); document.getElementById('lmZoneArea').classList.toggle('show',mode==='delivery'); clearResult(); render(); updateBtn(); }
 function setZone(z){ lmZone=z; clearResult(); render(); }
+
+// ── พิมพ์ที่อยู่จัดส่ง (ติดพัสดุ) ──
+function printAddress(){
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>ที่อยู่จัดส่ง - Saveway Express</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=Cormorant+Garamond:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+body{margin:0;padding:20px;background:#fff;font-family:'Sarabun',sans-serif}
+.sheet{max-width:400px;margin:0 auto}
+.pa-logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:800;color:#7A0F1E;margin-bottom:4px}
+.pa-logo span{color:#F5A623}
+.pa-sub{font-size:11px;color:#888;border-bottom:2px solid #F5A623;padding-bottom:12px;margin-bottom:16px}
+.pa-label{font-size:10px;letter-spacing:.12em;font-weight:700;color:#7A0F1E;margin-bottom:4px}
+.pa-address{font-size:16px;font-weight:700;color:#1a1a1a;line-height:1.8;margin-bottom:16px}
+.pa-phone{font-size:14px;font-weight:800;color:#C8102E}
+.pa-divider{border:none;border-top:1px dashed #ddd;margin:20px 0}
+.pa-sender{height:60px;border:1px dashed #ccc;border-radius:8px;margin-bottom:10px;padding:8px;font-size:12px;color:#aaa}
+.pa-note{margin-top:16px;padding-top:12px;border-top:1px dashed #ddd;font-size:11px;color:#999;line-height:1.6}
+</style></head><body><div class="sheet">
+<div class="pa-logo">Saveway<span> Express</span></div>
+<div class="pa-sub">📦 ใบส่งพัสดุ · ติดไว้ที่กล่อง</div>
+<div class="pa-label">📮 จัดส่งถึง</div>
+<div class="pa-address">บริษัท SAVEWAY (พรแก้วขนส่ง)<br/>177/12 หมู่ 4 ถนนเสด็จ ซอยสุริยะวงศ์<br/>ตำบลมีชัย อำเภอเมือง<br/>จังหวัดหนองคาย 43000</div>
+<div class="pa-phone">📞 085-590-7666 · 061-795-7496</div>
+<hr class="pa-divider"/>
+<div class="pa-label">📦 ผู้ส่ง</div>
+<div class="pa-sender">(กรุณาเขียนชื่อ-ที่อยู่ผู้ส่ง)</div>
+<div class="pa-note"><strong>✂️ ตัดแล้วติดไว้ที่หน้ากล่องพัสดุ</strong><br/>* ใช้สำหรับส่งพัสดุไปยัง Saveway Express เท่านั้น<br/>* หากมีหลายกล่อง กรุณาทำสำเนาเพิ่ม</div>
+</div></body></html>`;
+  const iframe=document.createElement('iframe');
+  iframe.style.cssText='position:fixed;top:-9999px;left:-9999px;width:100%;height:100%';
+  document.body.appendChild(iframe);
+  const doc=iframe.contentDocument; doc.open(); doc.write(html); doc.close();
+  setTimeout(function(){ iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(function(){ iframe.remove(); },1000); },600);
+}
 function clearResult(){ document.getElementById('resultArea').innerHTML=''; }
 function updateBtn(){ const btn=document.getElementById('calcBtn'); const ready=catId&&cart.length>0; btn.classList.toggle('ready',!!ready); btn.disabled=!ready; btn.textContent=LL[lang].calc; }
 
