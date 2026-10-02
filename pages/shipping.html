@@ -618,7 +618,7 @@ let PROVINCE_MIN_PRICE = 150;            // ราคาขั้นต่ำต
 const ANOUSITH_COST = { vte: 7.5, suburb: 15 };
 let WAREHOUSE_DISCOUNT = 0.90;
 // ✅ ราคาเริ่มต้น & กำไรขั้นต่ำ (แก้ได้ใน Admin)
-// START_PRICE = ราคาขั้นต่ำต่อกล่อง ไทย→ลาว (ลาว→ไทย ×2) · MIN_MARGIN = กำไรขั้นต่ำ % ของราคาขาย หลังหักส่วนลดทุกชนิด
+// START_PRICE = ราคากล่องเล็กสุด (MINI) ไทย→ลาว (ลาว→ไทย ×2) — เป็นจุดตั้งต้นของบันไดราคา ขนาดใหญ่ขึ้นราคาไต่ตามต้นทุน × markup · MIN_MARGIN = กำไรขั้นต่ำ % ของราคาขาย หลังหักส่วนลดทุกชนิด
 let START_PRICE = 150;
 let MIN_MARGIN = 0.30;
 const PRICING_VERSION = 2; // เพิ่มเลขนี้เมื่อเปลี่ยนสูตร/markup เพื่อไม่ให้ค่าเก่าใน localStorage ทับค่าใหม่
@@ -842,16 +842,24 @@ function makeCartItem(id, w, l, h, kg, qty){
 
 // ✅ ฟังก์ชันกลางสำหรับคำนวณราคาต่อกล่อง (ใช้ทั้ง Preview และ Calculate)
 // totalBillKg = น้ำหนักคิดค่าระวางรวมทั้งออเดอร์ (ไม่ใช่น้ำหนักจริง) — ใช้ตัดสิน tier/parcel eligibility
+//
+// ✅ สูตรราคาแบบขั้นบันได (v3):
+//   ราคาปกติ = START_PRICE + (ต้นทุนขนาดนี้ − ต้นทุนขนาดเล็กสุด MINI) × markup หมวดสินค้า
+//   → กล่อง MINI = START_PRICE พอดี (ทุกหมวด) แล้วไต่ขึ้นตามส่วนต่างต้นทุนของแต่ละขนาด
+//   → ทุกขนาดได้ราคาไม่เท่ากัน (แก้บั๊กเดิมที่ START_PRICE เป็น "เพดานล่าง" ทำให้ MINI–C+ ราคาเท่ากันหมด)
+//   ถัดมาหักส่วนลด tier (ปริมาณมาก ลด %) และส่วนลดมารับเอง แล้วกันขาดทุนด้วย MIN_MARGIN
+//   ⚠️ ไม่ใช้ START_PRICE เป็นเพดานล่างหลังหักส่วนลดอีกแล้ว ไม่งั้นส่วนลดปริมาณจะไม่มีผลกับกล่องเล็ก
 function priceFromBase(baseFlat, cat, dirMult, totalBillKg, warehouse){
   const isParcelEligible = totalBillKg < BULK_THRESHOLD_KG;
   const tier = getVolTier(totalBillKg);
   const discount = isParcelEligible ? 0 : tier.discount;
-  // ราคาตามหมวด (ต้นทุน × markup) แล้วหักส่วนลด tier / ส่วนลดมารับเอง
-  let price = baseFlat * cat.markup * (1 - discount);
+  const minCost = SIZE_CLASSES[0].cost;                       // ต้นทุนขนาดเล็กสุด (MINI)
+  const ladder = START_PRICE + Math.max(0, baseFlat - minCost) * cat.markup;
+  let price = ladder * (1 - discount);
   if(warehouse) price *= WAREHOUSE_DISCOUNT;
-  // ✅ กันราคาต่ำเกินไป: ไม่ต่ำกว่า "ราคาเริ่มต้น" และไม่ต่ำกว่าราคาที่ให้กำไรขั้นต่ำ (MIN_MARGIN) แม้หลังหักส่วนลดทุกชนิด
+  // ✅ กันขาดทุน: ไม่ต่ำกว่าราคาที่ให้กำไรขั้นต่ำ (MIN_MARGIN) แม้หลังหักส่วนลดทุกชนิด
   const marginFloor = baseFlat / (1 - MIN_MARGIN);
-  price = Math.max(price, marginFloor, START_PRICE);
+  price = Math.max(price, marginFloor);
   return Math.ceil(price * dirMult / 5) * 5;
 }
 function calculateBoxPrice(item, cat, dirMult, totalBillKg, includeLM = true) {
@@ -926,7 +934,7 @@ function renderAdminPanel(){
   CATEGORIES.forEach(c=>{ const p=Math.round((1-1/c.markup)*100); html+=`<div class="adm-row"><div><div class="adm-label">${c.icon} ${c.label.th}</div><div class="adm-sub">ต้นทุน × ${c.markup.toFixed(2)} → กำไร ~${p}% ของราคาขาย</div></div><div class="adm-cost">×<input class="adm-input" id="mu-${c.id}" type="number" value="${c.markup.toFixed(2)}" min="1" max="3" step="0.05"/></div><div class="adm-profit">${p}%</div></div>`; });
   html+=`</div>`;
   html+=`<div class="adm-section"><div class="adm-section-title">💰 ราคาเริ่มต้น & กำไรขั้นต่ำ</div>
-    <div class="adm-row"><div><div class="adm-label">ราคาเริ่มต้นต่อกล่อง (ไทย→ลาว)</div><div class="adm-sub">ไม่ต่ำกว่านี้ทุกกรณี (ลาว→ไทย ×2)</div></div><div class="adm-cost">฿<input class="adm-input" id="start-price" type="number" value="${START_PRICE}" min="0" step="5"/></div><div class="adm-profit"></div></div>
+    <div class="adm-row"><div><div class="adm-label">ราคาเริ่มต้น (กล่องเล็กสุด MINI)</div><div class="adm-sub">จุดตั้งต้นบันได — ขนาดใหญ่ขึ้นบวกตามต้นทุน × markup (ลาว→ไทย ×2)</div></div><div class="adm-cost">฿<input class="adm-input" id="start-price" type="number" value="${START_PRICE}" min="0" step="5"/></div><div class="adm-profit"></div></div>
     <div class="adm-row"><div><div class="adm-label">กำไรขั้นต่ำ (% ของราคาขาย)</div><div class="adm-sub">หลังหักส่วนลด tier/มารับเอง ก็ไม่ต่ำกว่านี้</div></div><div class="adm-cost"><input class="adm-input" id="min-margin" type="number" value="${Math.round(MIN_MARGIN*100)}" min="0" max="80" step="1"/>%</div><div class="adm-profit"></div></div></div>`;
   const whPct=Math.round((1-WAREHOUSE_DISCOUNT)*100);
   html+=`<div class="adm-section"><div class="adm-section-title">🏭 Warehouse Discount</div><div class="adm-row"><div><div class="adm-label">🏭 ส่วนลดมารับเอง</div><div class="adm-sub">ราคา × ตัวคูณ</div></div><div class="adm-cost">×<input class="adm-input" id="wh-discount" type="number" value="${WAREHOUSE_DISCOUNT.toFixed(2)}" min="0.5" max="1" step="0.01"/></div><div class="adm-profit">-${whPct}%</div></div></div>`;
