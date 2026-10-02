@@ -541,27 +541,27 @@ function changeAdminPin() {
 // ─── DATA ──────────────────────────────────────────────────────────────────
 
 const CATEGORIES = [
-  {id:'beauty',icon:'✨',markup:1.10,minKg:0,color:'#7c3aed',
+  {id:'beauty',icon:'✨',markup:1.50,minKg:0,color:'#7c3aed',
    label:{th:'ความงาม สปา & อาหารเสริม',en:'Beauty, Spa & Supplements',lo:'ສິນຄ້າງາມ'},
    sub:{th:'ครีม เซรั่ม วิตามิน คอลลาเจน',en:'Skincare, serum, vitamins',lo:'ຄຣີມ, ວິຕາມິນ'},
    minLabel:{th:'ไม่มีขั้นต่ำ',en:'No minimum',lo:'ບໍ່ມີຂັ້ນຕ່ຳ'}},
-  {id:'fashion',icon:'👕',markup:1.05,minKg:0,color:'#b45309',
+  {id:'fashion',icon:'👕',markup:1.45,minKg:0,color:'#b45309',
    label:{th:'เสื้อผ้า แฟชั่น & ของใช้ทั่วไป',en:'Fashion & General Goods',lo:'ເຄື່ອງນຸ່ງ'},
    sub:{th:'เสื้อผ้า กระเป๋า รองเท้า ของตกแต่งบ้าน',en:'Clothing, bags, shoes, home décor',lo:'ເຄື່ອງນຸ່ງ, ກະເປົາ'},
    minLabel:{th:'ไม่มีขั้นต่ำ',en:'No minimum',lo:'ບໍ່ມີຂັ້ນຕ່ຳ'}},
-  {id:'electronics',icon:'🔌',markup:1.15,minKg:0,color:'#0369a1',
+  {id:'electronics',icon:'🔌',markup:1.55,minKg:0,color:'#0369a1',
    label:{th:'เครื่องใช้ไฟฟ้า & อิเล็กทรอนิกส์',en:'Appliances & Electronics',lo:'ເຄື່ອງໃຊ້ໄຟຟ້າ'},
    sub:{th:'พัดลม หูฟัง กรอบโทรศัพท์ สายชาร์จ',en:'Fans, earphones, chargers',lo:'ພັດລົມ, ຫູຟັງ'},
    minLabel:{th:'ไม่มีขั้นต่ำ',en:'No minimum',lo:'ບໍ່ມີຂັ້ນຕ່ຳ'}},
-  {id:'condiment',icon:'🍶',markup:1.25,minKg:5,color:'#c2410c',
+  {id:'condiment',icon:'🍶',markup:1.65,minKg:5,color:'#c2410c',
    label:{th:'เครื่องปรุง ซอส & อาหารสำเร็จรูป',en:'Condiments & Sauces',lo:'ເຄື່ອງປຸງ'},
    sub:{th:'น้ำปลา น้ำจิ้ม กะปิ ซอส บะหมี่กึ่งฯ',en:'Fish sauce, dipping sauce, paste',lo:'ນ້ຳປາ, ນ້ຳຈິ້ມ'},
    minLabel:{th:'ขั้นต่ำ 5 กก.',en:'Min. 5 kg',lo:'ຂັ້ນຕ່ຳ 5 ກກ.'}},
-  {id:'beverage',icon:'🥤',markup:1.15,minKg:30,color:'#0284c7',
+  {id:'beverage',icon:'🥤',markup:1.55,minKg:30,color:'#0284c7',
    label:{th:'เครื่องดื่ม & น้ำดื่มบรรจุขวด',en:'Beverages & Bottled Water',lo:'ເຄື່ອງດື່ມ'},
    sub:{th:'น้ำดื่ม น้ำผลไม้ เครื่องดื่มชูกำลัง',en:'Water, juice, energy drinks',lo:'ນ້ຳດື່ມ, ນ້ຳໝາກໄມ້'},
    minLabel:{th:'ขั้นต่ำ 30 กก.',en:'Min. 30 kg',lo:'ຂັ້ນຕ່ຳ 30 ກກ.'}},
-  {id:'agri',icon:'🌾',markup:1.15,minKg:20,color:'#166534',
+  {id:'agri',icon:'🌾',markup:1.55,minKg:20,color:'#166534',
    label:{th:'สินค้าเกษตรแปรรูป & วัตถุดิบแห้ง',en:'Agro-processed & Dry Goods',lo:'ສິນຄ້າກະສິກຳ'},
    sub:{th:'ข้าว น้ำตาล แป้ง ถั่ว ผลไม้อบแห้ง',en:'Rice, sugar, flour, beans',lo:'ເຂົ້າ, ນ້ຳຕານ'},
    minLabel:{th:'ขั้นต่ำ 20 กก.',en:'Min. 20 kg',lo:'ຂັ້ນຕ່ຳ 20 ກກ.'}},
@@ -612,11 +612,16 @@ let LAK_OVERAGE_PER_KG = 2000;           // เกิน 30 กก. คิดเ
 let LAK_HOME_ADDON_LIGHT = 6000;         // ค่าส่งถึงบ้าน พัสดุ ≤5กก.
 let LAK_HOME_ADDON_HEAVY = 10000;        // ค่าส่งถึงบ้าน พัสดุ >5กก.
 let LAK_TO_THB_RATE = 0.00148;           // อัตราแลกเปลี่ยน กีบ→บาท (เช็คอัปเดตเป็นระยะ)
-let PROVINCE_LM_MARGIN = 1.2;            // มาร์จิ้นบนต้นทุน Anousith ต่างแขวง (+20%)
+let PROVINCE_LM_MARGIN = 1.45;           // มาร์จิ้นบนต้นทุน Anousith ต่างแขวง (×1.45 ≈ กำไร 31% ของราคาขาย)
 let PROVINCE_MIN_PRICE = 150;            // ราคาขั้นต่ำต่อกล่องสำหรับต่างแขวง (กันขายต่ำเกินไปสำหรับกล่องเบา)
 
 const ANOUSITH_COST = { vte: 7.5, suburb: 15 };
 let WAREHOUSE_DISCOUNT = 0.90;
+// ✅ ราคาเริ่มต้น & กำไรขั้นต่ำ (แก้ได้ใน Admin)
+// START_PRICE = ราคาขั้นต่ำต่อกล่อง ไทย→ลาว (ลาว→ไทย ×2) · MIN_MARGIN = กำไรขั้นต่ำ % ของราคาขาย หลังหักส่วนลดทุกชนิด
+let START_PRICE = 150;
+let MIN_MARGIN = 0.30;
+const PRICING_VERSION = 2; // เพิ่มเลขนี้เมื่อเปลี่ยนสูตร/markup เพื่อไม่ให้ค่าเก่าใน localStorage ทับค่าใหม่
 
 const NOT_ACCEPTED = {
   th:['ของสด/ผลไม้สด','Cold Chain/แช่แข็ง','ของเหลวไม่บรรจุ','วัตถุอันตราย','ยา/เวชภัณฑ์','สัตว์มีชีวิต'],
@@ -627,7 +632,7 @@ const NOT_ACCEPTED = {
 const LL = {
   th:{title:'คำนวณค่าขนส่งไทย-ลาว',sub:'หนองคาย → เวียงจันทน์ · รวมภาษีนำเข้าลาว',
     parcelTitle:'📦 ส่งชิ้นเล็ก / น้อยชิ้น ก็ส่งได้!',
-    parcelDescFn:(p0,p1,p2)=>`< 1 กก. → เริ่มต้น ฿${p0} · 1–10 กก. → คิดไล่ระดับตามน้ำหนัก/ขนาดจริง (สูงสุด ฿${p2}) · (Parcel ใช้เมื่อน้ำหนักรวม < ${BULK_THRESHOLD_KG} กก. เท่านั้น)`,
+    parcelDescFn:(s)=>`ราคาเริ่มต้น ฿${s} ต่อกล่อง · กล่องใหญ่/หนักขึ้น คิดไล่ระดับตามขนาด-น้ำหนักจริง · (Parcel ใช้เมื่อน้ำหนักรวม < ${BULK_THRESHOLD_KG} กก. เท่านั้น)`,
     sTier:'📊 ส่วนลดตามปริมาณ',thTier:'Tier',thRange:'น้ำหนักรวม',thDiscount:'ส่วนลด',
     s0:'เลือกเส้นทาง',s1:'เลือกประเภทสินค้า',sCart:'📦 เพิ่มกล่องในตะกร้า',
     calc:'💰 คำนวณราคาตะกร้า',reset:'คำนวณใหม่',result:'ค่าขนส่งรวมทั้งออเดอร์',
@@ -643,7 +648,7 @@ const LL = {
     volHint:'คิดตามน้ำหนักปริมาตร (กล่องใหญ่แต่เบา)',cartTotalBillLabel:'น้ำหนักคิดค่าระวาง'},
   en:{title:'Shipping Rate Calculator',sub:'Nong Khai → Vientiane · Import duty included',
     parcelTitle:'📦 Small items? No problem!',
-    parcelDescFn:(p0,p1,p2)=>`< 1 kg → from ฿${p0} · 1–10 kg → scales with actual weight/size (up to ฿${p2}) · (Parcel applies when total < ${BULK_THRESHOLD_KG} kg)`,
+    parcelDescFn:(s)=>`from ฿${s} per box · larger/heavier boxes scale with actual size/weight · (Parcel applies when total < ${BULK_THRESHOLD_KG} kg)`,
     sTier:'📊 Volume Discount',thTier:'Tier',thRange:'Total Weight',thDiscount:'Discount',
     s0:'Select route',s1:'Select category',sCart:'📦 Add boxes',
     calc:'💰 Calculate total',reset:'Recalculate',result:'Total shipping cost',
@@ -659,7 +664,7 @@ const LL = {
     volHint:'Charged by volumetric weight (large but light box)',cartTotalBillLabel:'Billable weight'},
   lo:{title:'ຄິດໄລ່ຄ່າຂົນສົ່ງ',sub:'ໜອງຄາຍ → ວຽງຈັນ · ລວມອາກອນ',
     parcelTitle:'📦 ສົ່ງຂອງຊິ້ນນ້ອຍໄດ້!',
-    parcelDescFn:(p0,p1,p2)=>`< 1 ກກ. → ເລີ່ມຕົ້ນ ฿${p0} · 1–10 ກກ. → ຄິດຕາມນ້ຳໜັກ/ຂະໜາດຈິງ (ສູງສຸດ ฿${p2}) · (Parcel ໃຊ້ເມື່ອນ້ຳໜັກລວມ < ${BULK_THRESHOLD_KG} ກກ.)`,
+    parcelDescFn:(s)=>`ເລີ່ມຕົ້ນ ฿${s} ຕໍ່ກ່ອງ · ກ່ອງໃຫຍ່/ໜັກຂຶ້ນ ຄິດຕາມຂະໜາດ/ນ້ຳໜັກຈິງ · (Parcel ໃຊ້ເມື່ອນ້ຳໜັກລວມ < ${BULK_THRESHOLD_KG} ກກ.)`,
     sTier:'📊 ສ່ວນຫຼຸດ',thTier:'Tier',thRange:'ນ້ຳໜັກ',thDiscount:'ສ່ວນຫຼຸດ',
     s0:'ເລືອກເສັ້ນທາງ',s1:'ເລືອກປະເພດ',sCart:'📦 ເພີ່ມກ່ອງ',
     calc:'💰 ຄິດໄລ່',reset:'ຄິດໄລ່ໃໝ່',result:'ຄ່າຂົນສົ່ງລວມ',
@@ -794,13 +799,18 @@ function getProvinceBoxCostTHB(item){
   return (baseLAK+addonLAK)*LAK_TO_THB_RATE;
 }
 // ✅ ฟังก์ชันกลางคำนวณ Last Mile ทั้งตะกร้า — vte/suburb ยังคิดแบบ flat/กล่อง, province คิดตามน้ำหนักจริงของแต่ละกล่อง (ต้นทุน Anousith จริง)
+function getProvinceBoxPrice(item, discount=0){
+  const c = getProvinceBoxCostTHB(item);
+  const marginFloor = Math.ceil(c / (1 - MIN_MARGIN)); // กำไรขั้นต่ำ แม้หลังหักส่วนลด tier
+  return Math.max(Math.round(c*PROVINCE_LM_MARGIN*(1-discount)), marginFloor, PROVINCE_MIN_PRICE);
+}
 function computeLMTotal(items, discount=0){
   if(dirId==='la2th'||lmMode==='warehouse') return 0;
   const z=LM_ZONES.find(z=>z.id===lmZone);
   if(!z) return 0;
   if(lmZone==='province'){
     let total=0;
-    items.forEach(it=>{ const rate=Math.max(Math.round(getProvinceBoxCostTHB(it)*PROVINCE_LM_MARGIN*(1-discount)), PROVINCE_MIN_PRICE); total+=rate*(it.qty||1); });
+    items.forEach(it=>{ total+=getProvinceBoxPrice(it,discount)*(it.qty||1); });
     return total;
   }
   const boxCount=items.reduce((s,it)=>s+(it.qty||1),0);
@@ -836,16 +846,13 @@ function priceFromBase(baseFlat, cat, dirMult, totalBillKg, warehouse){
   const isParcelEligible = totalBillKg < BULK_THRESHOLD_KG;
   const tier = getVolTier(totalBillKg);
   const discount = isParcelEligible ? 0 : tier.discount;
-  const effMarkup = cat.markup * (1 - discount) * dirMult;
-  let price = Math.ceil(baseFlat * effMarkup / 5) * 5;
-  if(isParcelEligible) {
-    let floorPrice = Math.ceil(baseFlat * dirMult / 5) * 5;
-    if(warehouse) floorPrice = Math.ceil(floorPrice * WAREHOUSE_DISCOUNT / 5) * 5;
-    price = Math.max(price, floorPrice);
-  } else if(warehouse) {
-    price = Math.ceil(price * WAREHOUSE_DISCOUNT / 5) * 5;
-  }
-  return price;
+  // ราคาตามหมวด (ต้นทุน × markup) แล้วหักส่วนลด tier / ส่วนลดมารับเอง
+  let price = baseFlat * cat.markup * (1 - discount);
+  if(warehouse) price *= WAREHOUSE_DISCOUNT;
+  // ✅ กันราคาต่ำเกินไป: ไม่ต่ำกว่า "ราคาเริ่มต้น" และไม่ต่ำกว่าราคาที่ให้กำไรขั้นต่ำ (MIN_MARGIN) แม้หลังหักส่วนลดทุกชนิด
+  const marginFloor = baseFlat / (1 - MIN_MARGIN);
+  price = Math.max(price, marginFloor, START_PRICE);
+  return Math.ceil(price * dirMult / 5) * 5;
 }
 function calculateBoxPrice(item, cat, dirMult, totalBillKg, includeLM = true) {
   let pt = getBoxBaseCostForItem(item);
@@ -916,8 +923,11 @@ function renderAdminPanel(){
   if(!isAdminSessionValid()){ document.getElementById('adminContent').innerHTML=renderLockScreen(); return; }
   let html='';
   html+=`<div class="adm-section"><div class="adm-section-title">📦 MARKUP หมวดสินค้า</div>`;
-  CATEGORIES.forEach(c=>{ const p=Math.round((c.markup-1)*100); html+=`<div class="adm-row"><div><div class="adm-label">${c.icon} ${c.label.th}</div><div class="adm-sub">ต้นทุน × ${c.markup.toFixed(2)}</div></div><div class="adm-cost">×<input class="adm-input" id="mu-${c.id}" type="number" value="${c.markup.toFixed(2)}" min="1" max="3" step="0.05"/></div><div class="adm-profit">${p}%</div></div>`; });
+  CATEGORIES.forEach(c=>{ const p=Math.round((1-1/c.markup)*100); html+=`<div class="adm-row"><div><div class="adm-label">${c.icon} ${c.label.th}</div><div class="adm-sub">ต้นทุน × ${c.markup.toFixed(2)} → กำไร ~${p}% ของราคาขาย</div></div><div class="adm-cost">×<input class="adm-input" id="mu-${c.id}" type="number" value="${c.markup.toFixed(2)}" min="1" max="3" step="0.05"/></div><div class="adm-profit">${p}%</div></div>`; });
   html+=`</div>`;
+  html+=`<div class="adm-section"><div class="adm-section-title">💰 ราคาเริ่มต้น & กำไรขั้นต่ำ</div>
+    <div class="adm-row"><div><div class="adm-label">ราคาเริ่มต้นต่อกล่อง (ไทย→ลาว)</div><div class="adm-sub">ไม่ต่ำกว่านี้ทุกกรณี (ลาว→ไทย ×2)</div></div><div class="adm-cost">฿<input class="adm-input" id="start-price" type="number" value="${START_PRICE}" min="0" step="5"/></div><div class="adm-profit"></div></div>
+    <div class="adm-row"><div><div class="adm-label">กำไรขั้นต่ำ (% ของราคาขาย)</div><div class="adm-sub">หลังหักส่วนลด tier/มารับเอง ก็ไม่ต่ำกว่านี้</div></div><div class="adm-cost"><input class="adm-input" id="min-margin" type="number" value="${Math.round(MIN_MARGIN*100)}" min="0" max="80" step="1"/>%</div><div class="adm-profit"></div></div></div>`;
   const whPct=Math.round((1-WAREHOUSE_DISCOUNT)*100);
   html+=`<div class="adm-section"><div class="adm-section-title">🏭 Warehouse Discount</div><div class="adm-row"><div><div class="adm-label">🏭 ส่วนลดมารับเอง</div><div class="adm-sub">ราคา × ตัวคูณ</div></div><div class="adm-cost">×<input class="adm-input" id="wh-discount" type="number" value="${WAREHOUSE_DISCOUNT.toFixed(2)}" min="0.5" max="1" step="0.01"/></div><div class="adm-profit">-${whPct}%</div></div></div>`;
   html+=`<div class="adm-section"><div class="adm-section-title">🚚 ต้นทุน Last Mile</div>`;
@@ -975,20 +985,20 @@ function mmRows(){
     return {id:c.id, dim:c.dim, kg:c.kg, cost, price, profit, pct};
   });
 }
-function mmClass(pct){ return pct<0?'#f87171':(pct<10?'#fbbf24':'#4ade80'); }
+function mmClass(pct){ return pct<0?'#f87171':(pct<MIN_MARGIN*100-0.01?'#fbbf24':'#4ade80'); }
 function renderMarginTable(){
   const rows=mmRows();
-  const loss=rows.filter(r=>r.profit<0).length, low=rows.filter(r=>r.profit>=0&&r.pct<10).length;
+  const loss=rows.filter(r=>r.profit<0).length, low=rows.filter(r=>r.profit>=0&&r.pct<MIN_MARGIN*100-0.01).length;
   const min=rows.reduce((a,b)=>b.pct<a.pct?b:a), max=rows.reduce((a,b)=>b.pct>a.pct?b:a);
   let h=`<div style="font-size:10px;margin:8px 0;line-height:1.7;color:#cbd5e1">`+
     (loss?`<span style="color:#f87171;font-weight:800">⚠️ ขาดทุน ${loss} ขนาด</span> · `:`<span style="color:#4ade80;font-weight:800">✅ ไม่มีขนาดไหนขาดทุน</span> · `)+
-    (low?`<span style="color:#fbbf24">กำไรบาง (&lt;10%) ${low} ขนาด</span> · `:'')+
+    (low?`<span style="color:#fbbf24">กำไรต่ำกว่าเป้า (&lt;${Math.round(MIN_MARGIN*100)}%) ${low} ขนาด</span> · `:'')+
     `ต่ำสุด ${min.id} ${min.pct.toFixed(0)}% · สูงสุด ${max.id} ${max.pct.toFixed(0)}%</div>`;
   h+=`<div style="overflow-x:auto"><table class="cart-result-table" style="color:#e2e8f0;min-width:340px"><thead><tr><th>รหัส</th><th>ขนาด/น้ำหนัก</th><th>ต้นทุน</th><th>ราคาขาย</th><th>กำไร</th><th>%</th></tr></thead><tbody>`;
   rows.forEach(r=>{ const col=mmClass(r.pct);
     h+=`<tr><td><strong>${r.id}</strong></td><td>≤${r.dim}ซม. · ≤${r.kg}กก.</td><td>฿${fmt(r.cost)}</td><td>฿${fmt(r.price)}</td><td style="color:${col};font-weight:800">${r.profit<0?'-':'+'}฿${fmt(Math.abs(r.profit))}</td><td style="color:${col};font-weight:800">${r.pct.toFixed(0)}%</td></tr>`; });
   h+=`</tbody></table></div>`;
-  h+=`<div style="font-size:9px;color:#6a8aaa;margin-top:6px;line-height:1.6">กำไร = ราคาขาย − ต้นทุนตารางพรแก้ว (ยังไม่รวมค่า Last Mile) · % = กำไร ÷ ราคาขาย · 🟢 ≥10% · 🟡 0–10% · 🔴 ขาดทุน<br/>คำนวณจากค่าที่ <u>บันทึกแล้ว</u> — แก้ markup/ส่วนลดแล้วกด 💾 บันทึก ตารางจะอัปเดต</div>`;
+  h+=`<div style="font-size:9px;color:#6a8aaa;margin-top:6px;line-height:1.6">กำไร = ราคาขาย − ต้นทุนตารางพรแก้ว (ยังไม่รวมค่า Last Mile) · % = กำไร ÷ ราคาขาย · 🟢 ≥${Math.round(MIN_MARGIN*100)}% · 🟡 0–${Math.round(MIN_MARGIN*100)}% · 🔴 ขาดทุน<br/>คำนวณจากค่าที่ <u>บันทึกแล้ว</u> — แก้ markup/ส่วนลดแล้วกด 💾 บันทึก ตารางจะอัปเดต</div>`;
   return h;
 }
 function mmSet(k,v){ mmState[k]=v; const el=document.getElementById('mmTable'); if(el) el.innerHTML=renderMarginTable(); }
@@ -1018,20 +1028,22 @@ function saveAdminSettings(){
   const overage=document.getElementById('lak-overage'); if(overage){ const v=parseFloat(overage.value); if(v>=0) LAK_OVERAGE_PER_KG=v; else{ showToast('⚠️ ค่าเกิน 30กก. ต้อง >0'); err=true; } }
   PARCEL_TIERS.forEach(p=>{ const el=document.getElementById('pt-'+p.id); if(el){ const v=parseFloat(el.value); if(v>=20) p.flat=v; else{ showToast('⚠️ Parcel rate ต้อง >20'); err=true; } } });
   const vd=document.getElementById('vol-divisor'); if(vd){ const v=parseFloat(vd.value); if(v>=1000&&v<=8000) VOLUMETRIC_DIVISOR=v; else{ showToast('⚠️ ตัวหารปริมาตรต้องอยู่ 1000-8000'); err=true; } }
+  const spEl=document.getElementById('start-price'); if(spEl){ const v=parseFloat(spEl.value); if(v>=0) START_PRICE=v; else{ showToast('⚠️ ราคาเริ่มต้นต้อง >= 0'); err=true; } }
+  const mgEl=document.getElementById('min-margin'); if(mgEl){ const v=parseFloat(mgEl.value); if(v>=0&&v<=80) MIN_MARGIN=v/100; else{ showToast('⚠️ กำไรขั้นต่ำต้องอยู่ 0-80%'); err=true; } }
   if(err) return;
   // ✅ คำนวณน้ำหนักปริมาตร/คิดค่าระวางของกล่องในตะกร้าใหม่ทั้งหมด เผื่อตัวหารเปลี่ยน
   cart = cart.map(item => makeCartItem(item.id, item.w, item.l, item.h, item.kg, item.qty));
-  try{ localStorage.setItem('savewayAdminSettings', JSON.stringify({catMarkup:Object.fromEntries(CATEGORIES.map(c=>[c.id,c.markup])),warehouseDiscount:WAREHOUSE_DISCOUNT,anousithCost:ANOUSITH_COST,parcelFlat:Object.fromEntries(PARCEL_TIERS.map(p=>[p.id,p.flat])),volumetricDivisor:VOLUMETRIC_DIVISOR,lakToThbRate:LAK_TO_THB_RATE,provinceLmMargin:PROVINCE_LM_MARGIN,provinceMinPrice:PROVINCE_MIN_PRICE,lakAddonLight:LAK_HOME_ADDON_LIGHT,lakAddonHeavy:LAK_HOME_ADDON_HEAVY,lakOveragePerKg:LAK_OVERAGE_PER_KG})); adminSettingsChanged=false; showToast('✅ บันทึกแล้ว'); renderCart(); clearResult(); }
+  try{ localStorage.setItem('savewayAdminSettings', JSON.stringify({catMarkup:Object.fromEntries(CATEGORIES.map(c=>[c.id,c.markup])),warehouseDiscount:WAREHOUSE_DISCOUNT,anousithCost:ANOUSITH_COST,parcelFlat:Object.fromEntries(PARCEL_TIERS.map(p=>[p.id,p.flat])),volumetricDivisor:VOLUMETRIC_DIVISOR,lakToThbRate:LAK_TO_THB_RATE,provinceLmMargin:PROVINCE_LM_MARGIN,provinceMinPrice:PROVINCE_MIN_PRICE,lakAddonLight:LAK_HOME_ADDON_LIGHT,lakAddonHeavy:LAK_HOME_ADDON_HEAVY,lakOveragePerKg:LAK_OVERAGE_PER_KG,startPrice:START_PRICE,minMargin:MIN_MARGIN,pricingVersion:PRICING_VERSION})); adminSettingsChanged=false; showToast('✅ บันทึกแล้ว'); renderCart(); clearResult(); }
   catch(e){ showToast('⚠️ บันทึกไม่สำเร็จ'); }
 }
 
 function loadSavedSettings(){
-  try{ const raw=localStorage.getItem('savewayAdminSettings'); if(!raw) return; const s=JSON.parse(raw); if(s.catMarkup) CATEGORIES.forEach(c=>{ if(s.catMarkup[c.id]) c.markup=s.catMarkup[c.id]; }); if(s.warehouseDiscount) WAREHOUSE_DISCOUNT=s.warehouseDiscount; if(s.anousithCost) Object.keys(s.anousithCost).forEach(k=>{ ANOUSITH_COST[k]=s.anousithCost[k]; }); if(s.parcelFlat) PARCEL_TIERS.forEach(p=>{ if(s.parcelFlat[p.id]) p.flat=s.parcelFlat[p.id]; }); if(s.volumetricDivisor) VOLUMETRIC_DIVISOR=s.volumetricDivisor; if(s.lakToThbRate) LAK_TO_THB_RATE=s.lakToThbRate; if(s.provinceLmMargin) PROVINCE_LM_MARGIN=s.provinceLmMargin; if(s.provinceMinPrice!==undefined) PROVINCE_MIN_PRICE=s.provinceMinPrice; if(s.lakAddonLight) LAK_HOME_ADDON_LIGHT=s.lakAddonLight; if(s.lakAddonHeavy) LAK_HOME_ADDON_HEAVY=s.lakAddonHeavy; if(s.lakOveragePerKg) LAK_OVERAGE_PER_KG=s.lakOveragePerKg; }catch(e){}
+  try{ const raw=localStorage.getItem('savewayAdminSettings'); if(!raw) return; const s=JSON.parse(raw); if(!(s.pricingVersion>=PRICING_VERSION)){ delete s.catMarkup; delete s.provinceLmMargin; } if(s.startPrice!==undefined) START_PRICE=s.startPrice; if(s.minMargin!==undefined) MIN_MARGIN=s.minMargin; if(s.catMarkup) CATEGORIES.forEach(c=>{ if(s.catMarkup[c.id]) c.markup=s.catMarkup[c.id]; }); if(s.warehouseDiscount) WAREHOUSE_DISCOUNT=s.warehouseDiscount; if(s.anousithCost) Object.keys(s.anousithCost).forEach(k=>{ ANOUSITH_COST[k]=s.anousithCost[k]; }); if(s.parcelFlat) PARCEL_TIERS.forEach(p=>{ if(s.parcelFlat[p.id]) p.flat=s.parcelFlat[p.id]; }); if(s.volumetricDivisor) VOLUMETRIC_DIVISOR=s.volumetricDivisor; if(s.lakToThbRate) LAK_TO_THB_RATE=s.lakToThbRate; if(s.provinceLmMargin) PROVINCE_LM_MARGIN=s.provinceLmMargin; if(s.provinceMinPrice!==undefined) PROVINCE_MIN_PRICE=s.provinceMinPrice; if(s.lakAddonLight) LAK_HOME_ADDON_LIGHT=s.lakAddonLight; if(s.lakAddonHeavy) LAK_HOME_ADDON_HEAVY=s.lakAddonHeavy; if(s.lakOveragePerKg) LAK_OVERAGE_PER_KG=s.lakOveragePerKg; }catch(e){}
 }
 
 function exportSettings(){
   if(!isAdminSessionValid()){ showToast('⚠️ กรุณาใส่ PIN'); return; }
-  const s={catMarkup:Object.fromEntries(CATEGORIES.map(c=>[c.id,c.markup])),warehouseDiscount:WAREHOUSE_DISCOUNT,anousithCost:ANOUSITH_COST,parcelFlat:Object.fromEntries(PARCEL_TIERS.map(p=>[p.id,p.flat])),volumetricDivisor:VOLUMETRIC_DIVISOR,lakToThbRate:LAK_TO_THB_RATE,provinceLmMargin:PROVINCE_LM_MARGIN,provinceMinPrice:PROVINCE_MIN_PRICE,lakAddonLight:LAK_HOME_ADDON_LIGHT,lakAddonHeavy:LAK_HOME_ADDON_HEAVY,lakOveragePerKg:LAK_OVERAGE_PER_KG,version:'1.2',exported:new Date().toISOString()};
+  const s={catMarkup:Object.fromEntries(CATEGORIES.map(c=>[c.id,c.markup])),warehouseDiscount:WAREHOUSE_DISCOUNT,anousithCost:ANOUSITH_COST,parcelFlat:Object.fromEntries(PARCEL_TIERS.map(p=>[p.id,p.flat])),volumetricDivisor:VOLUMETRIC_DIVISOR,lakToThbRate:LAK_TO_THB_RATE,provinceLmMargin:PROVINCE_LM_MARGIN,provinceMinPrice:PROVINCE_MIN_PRICE,lakAddonLight:LAK_HOME_ADDON_LIGHT,lakAddonHeavy:LAK_HOME_ADDON_HEAVY,lakOveragePerKg:LAK_OVERAGE_PER_KG,startPrice:START_PRICE,minMargin:MIN_MARGIN,pricingVersion:PRICING_VERSION,version:'1.3',exported:new Date().toISOString()};
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(s,null,2)],{type:'application/json'})); a.download=`saveway-config-${new Date().toISOString().slice(0,10)}.json`; a.click(); showToast('✅ Export สำเร็จ');
 }
 
@@ -1244,7 +1256,7 @@ function calculateCart(){
     let lmProfit=0;
     if(lmCostOnce>0){
       if(lmZone==='province'){
-        lineItems.forEach(it=>{ const c=getProvinceBoxCostTHB(it); const rev=Math.max(Math.round(c*PROVINCE_LM_MARGIN*(1-discount)),PROVINCE_MIN_PRICE); lmProfit+=(rev-c)*it.qty; totalCost+=c*it.qty; });
+        lineItems.forEach(it=>{ const c=getProvinceBoxCostTHB(it); const rev=getProvinceBoxPrice(it,discount); lmProfit+=(rev-c)*it.qty; totalCost+=c*it.qty; });
       } else {
         const c=(ANOUSITH_COST[lmZone]||0)*totalBoxCount; lmProfit=lmCostOnce-c; totalCost+=c;
       }
@@ -1268,7 +1280,7 @@ function calculateCart(){
 
 function renderTierTable(activeTotalKg){
   const dirMult=DIR_RATE[dirId]||1;
-  const parcelRows=PARCEL_TIERS.map(t=>{ const a=activeTotalKg!==undefined&&activeTotalKg>=t.minKg&&activeTotalKg<=t.maxKg; const fp=t.flat*dirMult; return `<tr class="${a?'active-tier':''}" style="background:${t.color}0a"><td><span class="tier-badge" style="background:${t.color}">${t.id}</span> ${t.label[lang]}</td><td>${t.range[lang]}</td><td style="color:${t.color};font-weight:700">Flat ฿${fp}</td></tr>`; }).join('');
+  const parcelRows=PARCEL_TIERS.map(t=>{ const a=activeTotalKg!==undefined&&activeTotalKg>=t.minKg&&activeTotalKg<=t.maxKg; const fp=START_PRICE*dirMult; return `<tr class="${a?'active-tier':''}" style="background:${t.color}0a"><td><span class="tier-badge" style="background:${t.color}">${t.id}</span> ${t.label[lang]}</td><td>${t.range[lang]}</td><td style="color:${t.color};font-weight:700">${lang==='th'?'เริ่ม':'from'} ฿${fp}</td></tr>`; }).join('');
   const volRows=VOL_TIERS.map(t=>{ const a=activeTotalKg!==undefined&&activeTotalKg>=t.minKg&&activeTotalKg<=t.maxKg; const d=Math.round(t.discount*100); return `<tr class="${a?'active-tier':''}"><td><span class="tier-badge" style="background:${t.color}">${t.id}</span> ${t.label[lang]}</td><td>${t.range[lang]}</td><td style="color:${d>0?'#166534':'#999'};font-weight:${d>0?700:400}">${d>0?`-${d}%`:'–'}</td></tr>`; }).join('');
   document.getElementById('tierBody').innerHTML=parcelRows+volRows;
 }
@@ -1323,8 +1335,7 @@ function render(){
   document.getElementById('hSub').textContent=ll.sub;
   document.getElementById('parcelTitle').textContent=ll.parcelTitle;
   const dm=DIR_RATE[dirId]||1;
-  const p0=PARCEL_TIERS[0].flat*dm, p1=PARCEL_TIERS[1].flat*dm, p2=PARCEL_TIERS[2].flat*dm;
-  document.getElementById('parcelDesc').innerHTML=ll.parcelDescFn(p0,p1,p2);
+  document.getElementById('parcelDesc').innerHTML=ll.parcelDescFn(START_PRICE*dm);
   document.getElementById('s0Label').textContent=ll.s0;
   document.getElementById('dir0Label').textContent=dirs[0].label;
   document.getElementById('dir0Sub').textContent=dirs[0].sub;
