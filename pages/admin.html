@@ -307,28 +307,6 @@ body{min-height:100vh;background:linear-gradient(160deg,#7A0F1E 0%,#5c0d18 55%,#
 <div id="toast"></div>
 
 <!-- PIN Change Modal -->
-<div class="pin-modal" id="pinModal">
-  <div class="pin-modal-box">
-    <h3>🔑 เปลี่ยน PIN Admin</h3>
-    <div class="field">
-      <label>PIN ปัจจุบัน</label>
-      <input type="password" id="oldPinInput" maxlength="6" placeholder="••••••"/>
-    </div>
-    <div class="field">
-      <label>PIN ใหม่</label>
-      <input type="password" id="newPinInput" maxlength="6" placeholder="••••••"/>
-    </div>
-    <div class="field">
-      <label>ยืนยัน PIN ใหม่</label>
-      <input type="password" id="confirmPinInput" maxlength="6" placeholder="••••••"/>
-    </div>
-    <div class="btn-row">
-      <button class="btn-cancel" onclick="closePinModal()">ยกเลิก</button>
-      <button class="btn-save" onclick="changeAdminPin()">💾 เปลี่ยน PIN</button>
-    </div>
-  </div>
-</div>
-
 <div id="printHeader">
   <div class="ph-logo">Saveway<span> Express</span> · ใบเสนอราคาค่าขนส่ง</div>
   <div class="ph-sub">savewayexpress.com · savewaypress@gmail.com · โทร. 085-590-7666</div>
@@ -454,13 +432,8 @@ body{min-height:100vh;background:linear-gradient(160deg,#7A0F1E 0%,#5c0d18 55%,#
   <div class="adm-header">
     <div class="adm-title">⚙️ Admin · จัดการราคา</div>
     <div style="display:flex;gap:8px">
-      <button class="adm-close" onclick="openPinModal()" style="background:rgba(245,166,35,0.15);border:1.5px solid rgba(245,166,35,0.3);padding:6px 14px;border-radius:999px;color:#F5A623;font-size:11px;font-weight:700;cursor:pointer">🔑 เปลี่ยน PIN</button>
-      <button class="adm-close" onclick="closeAdmin()">✕ ปิด</button>
+            <button class="adm-close" onclick="closeAdmin()">✕ ปิด</button>
     </div>
-  </div>
-  <div class="adm-security-warning" id="securityWarning">
-    <span class="warn-icon">🔒</span>
-    <span class="warn-text"><strong>⚠️ ข้อมูลนี้เป็นความลับของบริษัท</strong><br/>ราคาต้นทุนและ markup เป็นข้อมูลภายใน</span>
   </div>
   <div id="adminContent"></div>
 </div>
@@ -1027,7 +1000,7 @@ function renderMarginSection(){
 }
 
 function saveAdminSettings(){
-  if(!isAdminSessionValid()){ showToast('⚠️ กรุณาใส่ PIN'); return; }
+  if(!isAdminSessionValid()){ showToast('⚠️ กรุณาเข้าสู่ระบบด้วยอีเมลที่แถบด้านบนก่อน'); return; }
   let err=false;
   CATEGORIES.forEach(c=>{ const el=document.getElementById('mu-'+c.id); if(el){ const v=parseFloat(el.value); if(v>=1&&v<=3) c.markup=v; else{ showToast('⚠️ Markup '+c.label.th+' ต้องอยู่ 1-3'); err=true; } } });
   const wh=document.getElementById('wh-discount'); if(wh){ const v=parseFloat(wh.value); if(v>=0.5&&v<=1) WAREHOUSE_DISCOUNT=v; else{ showToast('⚠️ Discount ต้องอยู่ 0.5-1'); err=true; } }
@@ -1054,13 +1027,13 @@ function loadSavedSettings(){
 }
 
 function exportSettings(){
-  if(!isAdminSessionValid()){ showToast('⚠️ กรุณาใส่ PIN'); return; }
+  if(!isAdminSessionValid()){ showToast('⚠️ กรุณาเข้าสู่ระบบด้วยอีเมลที่แถบด้านบนก่อน'); return; }
   const s={catMarkup:Object.fromEntries(CATEGORIES.map(c=>[c.id,c.markup])),warehouseDiscount:WAREHOUSE_DISCOUNT,anousithCost:ANOUSITH_COST,parcelFlat:Object.fromEntries(PARCEL_TIERS.map(p=>[p.id,p.flat])),volumetricDivisor:VOLUMETRIC_DIVISOR,lakToThbRate:LAK_TO_THB_RATE,provinceLmMargin:PROVINCE_LM_MARGIN,provinceMinPrice:PROVINCE_MIN_PRICE,lakAddonLight:LAK_HOME_ADDON_LIGHT,lakAddonHeavy:LAK_HOME_ADDON_HEAVY,lakOveragePerKg:LAK_OVERAGE_PER_KG,startPrice:START_PRICE,minMargin:MIN_MARGIN,pricingVersion:PRICING_VERSION,version:'1.3',exported:new Date().toISOString()};
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(s,null,2)],{type:'application/json'})); a.download=`saveway-config-${new Date().toISOString().slice(0,10)}.json`; a.click(); showToast('✅ Export สำเร็จ');
 }
 
 function importSettings(){
-  if(!isAdminSessionValid()){ showToast('⚠️ กรุณาใส่ PIN'); return; }
+  if(!isAdminSessionValid()){ showToast('⚠️ กรุณาเข้าสู่ระบบด้วยอีเมลที่แถบด้านบนก่อน'); return; }
   const text=document.getElementById('importArea').value; if(!text.trim()){ showToast('⚠️ กรุณาใส่ JSON'); return; }
   try{ const s=JSON.parse(text); if(s.catMarkup) CATEGORIES.forEach(c=>{ if(s.catMarkup[c.id]) c.markup=s.catMarkup[c.id]; }); if(s.warehouseDiscount) WAREHOUSE_DISCOUNT=s.warehouseDiscount; if(s.anousithCost) Object.keys(s.anousithCost).forEach(k=>{ ANOUSITH_COST[k]=s.anousithCost[k]; }); if(s.parcelFlat) PARCEL_TIERS.forEach(p=>{ if(s.parcelFlat[p.id]) p.flat=s.parcelFlat[p.id]; }); if(s.volumetricDivisor) VOLUMETRIC_DIVISOR=s.volumetricDivisor; if(s.lakToThbRate) LAK_TO_THB_RATE=s.lakToThbRate; if(s.provinceLmMargin) PROVINCE_LM_MARGIN=s.provinceLmMargin; if(s.provinceMinPrice!==undefined) PROVINCE_MIN_PRICE=s.provinceMinPrice; if(s.lakAddonLight) LAK_HOME_ADDON_LIGHT=s.lakAddonLight; if(s.lakAddonHeavy) LAK_HOME_ADDON_HEAVY=s.lakAddonHeavy; if(s.lakOveragePerKg) LAK_OVERAGE_PER_KG=s.lakOveragePerKg; cart = cart.map(item => makeCartItem(item.id, item.w, item.l, item.h, item.kg, item.qty)); saveAdminSettings(); renderAdminPanel(); document.getElementById('importArea').value=''; showToast('✅ นำเข้าเรียบร้อย'); }
   catch(e){ showToast('⚠️ JSON ไม่ถูกต้อง: '+e.message); }
@@ -1524,6 +1497,9 @@ async function cloudPublish(){
   const r2 = await sb.from('pricing_public').upsert({id:1, data:buildPublicSheet(), version:((cur.data&&cur.data.version)||0)+1, updated_at:now});
   cloudMsg(r2.error ? '❌ เผยแพร่ไม่สำเร็จ: '+r2.error.message : '✅ เผยแพร่ราคาแล้ว '+new Date().toLocaleTimeString('th-TH'));
 }
+// ไม่ใช้ PIN แล้ว — เข้าแผง Admin ได้เมื่อล็อกอินด้วยอีเมลเท่านั้น
+refreshAdminSession = function(){ isAdminUnlocked = cloudAdmin; };
+renderLockScreen = function(){ return '<div class="adm-lock-overlay"><div class="lock-icon">🔒</div><div class="lock-text">กรุณาเข้าสู่ระบบด้วยอีเมลที่แถบด้านบนก่อน</div></div>'; };
 sb.auth.getSession().then(()=>cloudAfterLogin());
 renderCloudBar();
 
