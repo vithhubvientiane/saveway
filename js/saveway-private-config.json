@@ -1,0 +1,88 @@
+{
+  "catMarkup": {
+    "beauty": 1.5,
+    "fashion": 1.45,
+    "electronics": 1.55,
+    "condiment": 1.65,
+    "beverage": 1.55,
+    "agri": 1.55
+  },
+  "warehouseDiscount": 0.9,
+  "anousithCost": {
+    "vte": 7.5,
+    "suburb": 15.0
+  },
+  "sizeCosts": {
+    "MINI": 30,
+    "A": 40,
+    "A+": 50,
+    "B": 60,
+    "B+": 70,
+    "C": 80,
+    "C+": 100,
+    "D": 120,
+    "D+": 150,
+    "E": 180,
+    "E+": 200,
+    "F": 250,
+    "F+": 300,
+    "G": 350
+  },
+  "volTiers": {
+    "S": 0.0,
+    "M": 0.05,
+    "L": 0.1,
+    "XL": 0.15
+  },
+  "volumetricDivisor": 5000,
+  "lakToThbRate": 0.00148,
+  "provinceLmMargin": 1.45,
+  "provinceMinPrice": 150.0,
+  "lakAddonLight": 6000.0,
+  "lakAddonHeavy": 10000.0,
+  "lakOveragePerKg": 2000.0,
+  "startPrice": 150.0,
+  "minMargin": 0.3,
+  "parcelFlat": {
+    "P-Mini": 55,
+    "P-Small": 85,
+    "P-Medium": 130
+  },
+  "boxMarginalRate": {
+    "large": 18,
+    "xl": 14,
+    "bulk": 11
+  },
+  "provinceTableLak": [
+    8000,
+    9500,
+    11000,
+    12500,
+    14000,
+    15500,
+    17000,
+    18500,
+    20000,
+    21500,
+    23000,
+    24500,
+    26000,
+    27500,
+    28000,
+    30000,
+    32000,
+    34000,
+    36000,
+    38000,
+    40000,
+    42000,
+    44000,
+    46000,
+    48000,
+    50000,
+    52000,
+    54000,
+    56000,
+    58000
+  ]
+}
