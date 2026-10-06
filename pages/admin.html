@@ -545,27 +545,27 @@ function changeAdminPin() {
 // ─── DATA ──────────────────────────────────────────────────────────────────
 
 const CATEGORIES = [
-  {id:'beauty',icon:'✨',markup:1.50,minKg:0,color:'#7c3aed',
+  {id:'beauty',icon:'✨',markup:1,minKg:0,color:'#7c3aed',
    label:{th:'ความงาม สปา & อาหารเสริม',en:'Beauty, Spa & Supplements',lo:'ສິນຄ້າງາມ'},
    sub:{th:'ครีม เซรั่ม วิตามิน คอลลาเจน',en:'Skincare, serum, vitamins',lo:'ຄຣີມ, ວິຕາມິນ'},
    minLabel:{th:'ไม่มีขั้นต่ำ',en:'No minimum',lo:'ບໍ່ມີຂັ້ນຕ່ຳ'}},
-  {id:'fashion',icon:'👕',markup:1.45,minKg:0,color:'#b45309',
+  {id:'fashion',icon:'👕',markup:1,minKg:0,color:'#b45309',
    label:{th:'เสื้อผ้า แฟชั่น & ของใช้ทั่วไป',en:'Fashion & General Goods',lo:'ເຄື່ອງນຸ່ງ'},
    sub:{th:'เสื้อผ้า กระเป๋า รองเท้า ของตกแต่งบ้าน',en:'Clothing, bags, shoes, home décor',lo:'ເຄື່ອງນຸ່ງ, ກະເປົາ'},
    minLabel:{th:'ไม่มีขั้นต่ำ',en:'No minimum',lo:'ບໍ່ມີຂັ້ນຕ່ຳ'}},
-  {id:'electronics',icon:'🔌',markup:1.55,minKg:0,color:'#0369a1',
+  {id:'electronics',icon:'🔌',markup:1,minKg:0,color:'#0369a1',
    label:{th:'เครื่องใช้ไฟฟ้า & อิเล็กทรอนิกส์',en:'Appliances & Electronics',lo:'ເຄື່ອງໃຊ້ໄຟຟ້າ'},
    sub:{th:'พัดลม หูฟัง กรอบโทรศัพท์ สายชาร์จ',en:'Fans, earphones, chargers',lo:'ພັດລົມ, ຫູຟັງ'},
    minLabel:{th:'ไม่มีขั้นต่ำ',en:'No minimum',lo:'ບໍ່ມີຂັ້ນຕ່ຳ'}},
-  {id:'condiment',icon:'🍶',markup:1.65,minKg:5,color:'#c2410c',
+  {id:'condiment',icon:'🍶',markup:1,minKg:5,color:'#c2410c',
    label:{th:'เครื่องปรุง ซอส & อาหารสำเร็จรูป',en:'Condiments & Sauces',lo:'ເຄື່ອງປຸງ'},
    sub:{th:'น้ำปลา น้ำจิ้ม กะปิ ซอส บะหมี่กึ่งฯ',en:'Fish sauce, dipping sauce, paste',lo:'ນ້ຳປາ, ນ້ຳຈິ້ມ'},
    minLabel:{th:'ขั้นต่ำ 5 กก.',en:'Min. 5 kg',lo:'ຂັ້ນຕ່ຳ 5 ກກ.'}},
-  {id:'beverage',icon:'🥤',markup:1.55,minKg:30,color:'#0284c7',
+  {id:'beverage',icon:'🥤',markup:1,minKg:30,color:'#0284c7',
    label:{th:'เครื่องดื่ม & น้ำดื่มบรรจุขวด',en:'Beverages & Bottled Water',lo:'ເຄື່ອງດື່ມ'},
    sub:{th:'น้ำดื่ม น้ำผลไม้ เครื่องดื่มชูกำลัง',en:'Water, juice, energy drinks',lo:'ນ້ຳດື່ມ, ນ້ຳໝາກໄມ້'},
    minLabel:{th:'ขั้นต่ำ 30 กก.',en:'Min. 30 kg',lo:'ຂັ້ນຕ່ຳ 30 ກກ.'}},
-  {id:'agri',icon:'🌾',markup:1.55,minKg:20,color:'#166534',
+  {id:'agri',icon:'🌾',markup:1,minKg:20,color:'#166534',
    label:{th:'สินค้าเกษตรแปรรูป & วัตถุดิบแห้ง',en:'Agro-processed & Dry Goods',lo:'ສິນຄ້າກະສິກຳ'},
    sub:{th:'ข้าว น้ำตาล แป้ง ถั่ว ผลไม้อบแห้ง',en:'Rice, sugar, flour, beans',lo:'ເຂົ້າ, ນ້ຳຕານ'},
    minLabel:{th:'ขั้นต่ำ 20 กก.',en:'Min. 20 kg',lo:'ຂັ້ນຕ່ຳ 20 ກກ.'}},
@@ -573,13 +573,13 @@ const CATEGORIES = [
 
 // ✅ แก้ไข: เพิ่ม Parcel Medium สำหรับกล่อง 5-9.9 กก.
 const PARCEL_TIERS = [
-  {id:'P-Mini',minKg:0,maxKg:0.99,flat:55,color:'#dc2626',
+  {id:'P-Mini',minKg:0,maxKg:0.99,flat:0,color:'#dc2626',
    label:{th:'Parcel Mini',en:'Parcel Mini',lo:'ພັດສະດຸ Mini'},
    range:{th:'< 1 กก.',en:'< 1 kg',lo:'< 1 ກກ.'}},
-  {id:'P-Small',minKg:1,maxKg:4.99,flat:85,color:'#ea580c',
+  {id:'P-Small',minKg:1,maxKg:4.99,flat:0,color:'#ea580c',
    label:{th:'Parcel Small',en:'Parcel Small',lo:'ພັດສະດຸ Small'},
    range:{th:'1–4.9 กก.',en:'1–4.9 kg',lo:'1–4.9 ກກ.'}},
-  {id:'P-Medium',minKg:5,maxKg:9.99,flat:130,color:'#d97706',
+  {id:'P-Medium',minKg:5,maxKg:9.99,flat:0,color:'#d97706',
    label:{th:'Parcel Medium',en:'Parcel Medium',lo:'ພັດສະດຸ Medium'},
    range:{th:'5–9.9 กก.',en:'5–9.9 kg',lo:'5–9.9 ກກ.'}},
 ];
@@ -607,24 +607,20 @@ const LM_ZONES = [
 
 // ✅ Anousith Express — เรตจริงค่าส่ง "ต่างแขวง" (LAK) ตามน้ำหนัก/ขนาด (คอลัมน์ราคาปกติ ยังไม่ถึงยอด 1,000/เดือน)
 // index 0 = 1kg ... index 29 = 30kg. เกิน 30kg คิดต่อจาก LAK_OVERAGE_PER_KG
-const PROVINCE_LM_TABLE_LAK = [
-  8000,9500,11000,12500,14000,15500,17000,18500,20000,21500,
-  23000,24500,26000,27500,28000,30000,32000,34000,36000,38000,
-  40000,42000,44000,46000,48000,50000,52000,54000,56000,58000,
-];
-let LAK_OVERAGE_PER_KG = 2000;           // เกิน 30 กก. คิดเพิ่ม/กก.
-let LAK_HOME_ADDON_LIGHT = 6000;         // ค่าส่งถึงบ้าน พัสดุ ≤5กก.
-let LAK_HOME_ADDON_HEAVY = 10000;        // ค่าส่งถึงบ้าน พัสดุ >5กก.
-let LAK_TO_THB_RATE = 0.00148;           // อัตราแลกเปลี่ยน กีบ→บาท (เช็คอัปเดตเป็นระยะ)
-let PROVINCE_LM_MARGIN = 1.45;           // มาร์จิ้นบนต้นทุน Anousith ต่างแขวง (×1.45 ≈ กำไร 31% ของราคาขาย)
+const PROVINCE_LM_TABLE_LAK = new Array(30).fill(0);
+let LAK_OVERAGE_PER_KG = 0;           // เกิน 30 กก. คิดเพิ่ม/กก.
+let LAK_HOME_ADDON_LIGHT = 0;         // ค่าส่งถึงบ้าน พัสดุ ≤5กก.
+let LAK_HOME_ADDON_HEAVY = 0;        // ค่าส่งถึงบ้าน พัสดุ >5กก.
+let LAK_TO_THB_RATE = 0;           // อัตราแลกเปลี่ยน กีบ→บาท (เช็คอัปเดตเป็นระยะ)
+let PROVINCE_LM_MARGIN = 1;           // โหลดจากคลาวด์หลังล็อกอินแอดมิน
 let PROVINCE_MIN_PRICE = 150;            // ราคาขั้นต่ำต่อกล่องสำหรับต่างแขวง (กันขายต่ำเกินไปสำหรับกล่องเบา)
 
-const ANOUSITH_COST = { vte: 7.5, suburb: 15 };
+const ANOUSITH_COST = { vte: 0, suburb: 0 };
 let WAREHOUSE_DISCOUNT = 0.90;
 // ✅ ราคาเริ่มต้น & กำไรขั้นต่ำ (แก้ได้ใน Admin)
 // START_PRICE = ราคากล่องเล็กสุด (MINI) ไทย→ลาว (ลาว→ไทย ×2) — เป็นจุดตั้งต้นของบันไดราคา ขนาดใหญ่ขึ้นราคาไต่ตามต้นทุน × markup · MIN_MARGIN = กำไรขั้นต่ำ % ของราคาขาย หลังหักส่วนลดทุกชนิด
 let START_PRICE = 150;
-let MIN_MARGIN = 0.30;
+let MIN_MARGIN = 0;
 const PRICING_VERSION = 2; // เพิ่มเลขนี้เมื่อเปลี่ยนสูตร/markup เพื่อไม่ให้ค่าเก่าใน localStorage ทับค่าใหม่
 
 const NOT_ACCEPTED = {
@@ -717,15 +713,15 @@ function getParcelTier(kg){ return PARCEL_TIERS.find(t=>kg>=t.minKg&&kg<=t.maxKg
 function getVolTier(kg){ return VOL_TIERS.find(t=>kg>=t.minKg&&kg<=t.maxKg)||VOL_TIERS[0]; }
 
 // ✅ FIX: ต้นทุนต่อกล่องสำหรับทุกช่วงน้ำหนัก (0.01–50 กก.)
-// กล่อง < 10 กก. ยังคงใช้เรทเดิม (150 / 180 / 220 บาท flat) ตามที่กำหนดไว้
+// กล่อง < 10 กก. ใช้เรทที่ตั้งไว้ในระบบแอดมิน
 // กล่อง ≥ 10 กก. เดิมไม่มีสูตรรองรับ (บั๊ก: คืนค่า null → ระบบฟ้อง "เกินมาตรฐาน")
 // สูตรใหม่ต่อยอดแบบ "ต้นทุนฐาน + อัตราส่วนเพิ่ม/กก. ที่ลดหลั่นลง" (degressive rate)
 // ต่อเนื่องจากจุดตัดของ P-Medium เสมอ และอ้างอิงค่า flat ที่ตั้งใน Admin แบบไดนามิก
 // (ถ้าแก้ต้นทุน P-Medium ใน Admin ทุกเรทของกล่องใหญ่จะขยับตามอัตโนมัติ)
-const BOX_MARGINAL_RATE = { large: 18, xl: 14, bulk: 11 }; // บาท/กก. ส่วนเพิ่มแต่ละช่วง
+const BOX_MARGINAL_RATE = { large: 0, xl: 0, bulk: 0 }; // โหลดจากคลาวด์หลังล็อกอินแอดมิน
 // ✅ FIX: ราคาต่อเนื่องตามน้ำหนัก/ขนาด แทนการ flat ทั้งช่วง (0.99/4.99 กก. ยังฟรีค่าจัดการขั้นต่ำ)
 // P-Mini/Small/Medium ที่ตั้งใน Admin คือ "ราคา ณ จุดสิ้นสุดช่วง" (anchor) ไม่ใช่ราคาเหมาทั้งช่วงอีกต่อไป
-// เช่น P-Mini=55 คือราคาที่ 1 กก., P-Small=85 คือราคาที่ 5 กก., P-Medium=130 คือราคาที่ 10 กก.
+// เช่น P-Mini คือราคาที่ 1 กก., P-Small ที่ 5 กก., P-Medium ที่ 10 กก. (ค่าจริงโหลดจากคลาวด์)
 // น้ำหนักระหว่างจุดจะได้ราคาไล่ระดับเชิงเส้นระหว่างสองจุดนั้น
 function interpolateParcelCost(kg){
   const pMini   = PARCEL_TIERS.find(t=>t.id==='P-Mini').flat;
@@ -735,23 +731,23 @@ function interpolateParcelCost(kg){
   if(kg <= 5) return pMini + (pSmall - pMini) * ((kg - 1) / 4);
   return pSmall + (pMedium - pSmall) * ((kg - 5) / 5); // kg <= 10
 }
-// ✅ ต้นทุนต่อกล่องจากตารางราคาพรแก้ว (หนองคาย → เวียงจันทน์)
+// ✅ ต้นทุนต่อกล่องจากตารางราคาผู้ให้บริการขนส่ง (หนองคาย → เวียงจันทน์)
 // แบ่งตามขนาด (กว้าง+ยาว+สูง ซม.) และน้ำหนักจริง — ใช้รหัสที่สูงกว่า
 const SIZE_CLASSES = [
-  {id:'MINI',dim:30, kg:1,  cost:30},
-  {id:'A',   dim:40, kg:2,  cost:40},
-  {id:'A+',  dim:50, kg:3,  cost:50},
-  {id:'B',   dim:60, kg:4,  cost:60},
-  {id:'B+',  dim:70, kg:5,  cost:70},
-  {id:'C',   dim:80, kg:6,  cost:80},
-  {id:'C+',  dim:90, kg:8,  cost:100},
-  {id:'D',   dim:100,kg:10, cost:120},
-  {id:'D+',  dim:120,kg:12, cost:150},
-  {id:'E',   dim:130,kg:15, cost:180},
-  {id:'E+',  dim:140,kg:18, cost:200},
-  {id:'F',   dim:160,kg:21, cost:250},
-  {id:'F+',  dim:180,kg:29, cost:300},
-  {id:'G',   dim:200,kg:39, cost:350},
+  {id:'MINI',dim:30, kg:1,  cost:0},
+  {id:'A',   dim:40, kg:2,  cost:0},
+  {id:'A+',  dim:50, kg:3,  cost:0},
+  {id:'B',   dim:60, kg:4,  cost:0},
+  {id:'B+',  dim:70, kg:5,  cost:0},
+  {id:'C',   dim:80, kg:6,  cost:0},
+  {id:'C+',  dim:90, kg:8,  cost:0},
+  {id:'D',   dim:100,kg:10, cost:0},
+  {id:'D+',  dim:120,kg:12, cost:0},
+  {id:'E',   dim:130,kg:15, cost:0},
+  {id:'E+',  dim:140,kg:18, cost:0},
+  {id:'F',   dim:160,kg:21, cost:0},
+  {id:'F+',  dim:180,kg:29, cost:0},
+  {id:'G',   dim:200,kg:39, cost:0},
 ];
 function getBoxBaseCostForItem(item){
   const last = SIZE_CLASSES[SIZE_CLASSES.length-1];
@@ -762,8 +758,8 @@ function getBoxBaseCostForItem(item){
     const c = SIZE_CLASSES[Math.max(bySize, byWeight)];
     return { flat: c.cost, id: c.id, label: 'ขนาด '+c.id };
   }
-  // Over size (> 200 ซม. หรือ > 39 กก.) — ตารางไม่มีราคา ใช้สูตรเดิมต่อจากรหัส G (350 บ.)
-  // 350 + อัตราส่วนเพิ่ม bulk บาท/กก. ส่วนที่เกิน 39 กก. (ใช้ที่สูงกว่าระหว่างน้ำหนักจริงกับน้ำหนักปริมาตร)
+  // Over size (> 200 ซม. หรือ > 39 กก.) — ตารางไม่มีราคา ใช้สูตรต่อจากรหัส G
+  // ต้นทุนรหัส G + อัตราส่วนเพิ่ม bulk บาท/กก. ส่วนที่เกิน 39 กก.
   const effKg = Math.max(item.billKg, last.kg);
   const cost = last.cost + BOX_MARGINAL_RATE.bulk * (effKg - last.kg);
   return { flat: Math.ceil(cost/5)*5, id:'OVER', label:'Over size' };
@@ -955,7 +951,7 @@ function renderAdminPanel(){
     <div style="margin-top:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;font-size:9px;color:#6a8aaa;line-height:1.6">
       ℹ️ ตารางฐาน 1–30 กก. อ้างอิงเรตจริงจาก Anousith Express (คอลัมน์ราคาปกติ ยังไม่ถึงยอด 1,000/เดือน) — แก้ได้เฉพาะอัตราแลกเปลี่ยน/มาร์จิ้น/ค่าส่งถึงบ้านที่นี่ ถ้า Saveway ถึงยอดคอมมิต 1,000 หรือ 1,500 พัสดุ/เดือนแล้ว ค่อยขอตารางเรตใหม่มาอัปเดต
     </div></div>`;
-  html+=`<div class="adm-section"><div class="adm-section-title">📫 ต้นทุนตามขนาด/น้ำหนัก (ตารางพรแก้ว)</div>`;
+  html+=`<div class="adm-section"><div class="adm-section-title">📫 ต้นทุนตามขนาด/น้ำหนัก (ตารางผู้ให้บริการขนส่ง)</div>`;
   SIZE_CLASSES.forEach(c=>{ html+=`<div class="adm-row"><div><div class="adm-label">${c.id}</div><div class="adm-sub">≤ ${c.dim} ซม. · ≤ ${c.kg} กก.</div></div><div class="adm-profit">฿${c.cost}</div></div>`; });
   html+=`<div style="margin-top:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;font-size:9px;color:#6a8aaa;line-height:1.6">
     ℹ️ เลือกรหัสที่สูงกว่าระหว่างขนาด (กว้าง+ยาว+สูง) กับน้ำหนักจริง · เกิน 200 ซม. หรือ 39 กก. คิด 350 + ${BOX_MARGINAL_RATE.bulk} บ./กก. ส่วนที่เกิน 39 กก.
@@ -977,7 +973,7 @@ function renderAdminPanel(){
 }
 
 // ─── MARGIN MATRIX (Admin) ───────────────────────────────────────────────
-// ตารางกำไร = ราคาที่ลูกค้าจ่ายจริง (สูตรเดียวกับ calculateBoxPrice) − ต้นทุนตารางพรแก้ว
+// ตารางกำไร = ราคาที่ลูกค้าจ่ายจริง (สูตรเดียวกับ calculateBoxPrice) − ต้นทุนตารางผู้ให้บริการขนส่ง
 let mmState = { cat:'beauty', dir:'th2la', wh:false, tier:'parcel' };
 const MM_TIERS = [
   {id:'parcel', label:'Parcel (<30 กก.)', kg:10},
@@ -1010,7 +1006,7 @@ function renderMarginTable(){
   rows.forEach(r=>{ const col=mmClass(r.pct);
     h+=`<tr><td><strong>${r.id}</strong></td><td>≤${r.dim}ซม. · ≤${r.kg}กก.</td><td>฿${fmt(r.cost)}</td><td>฿${fmt(r.price)}</td><td style="color:${col};font-weight:800">${r.profit<0?'-':'+'}฿${fmt(Math.abs(r.profit))}</td><td style="color:${col};font-weight:800">${r.pct.toFixed(0)}%</td></tr>`; });
   h+=`</tbody></table></div>`;
-  h+=`<div style="font-size:9px;color:#6a8aaa;margin-top:6px;line-height:1.6">กำไร = ราคาขาย − ต้นทุนตารางพรแก้ว (ยังไม่รวมค่า Last Mile) · % = กำไร ÷ ราคาขาย · 🟢 ≥${Math.round(MIN_MARGIN*100)}% · 🟡 0–${Math.round(MIN_MARGIN*100)}% · 🔴 ขาดทุน<br/>คำนวณจากค่าที่ <u>บันทึกแล้ว</u> — แก้ markup/ส่วนลดแล้วกด 💾 บันทึก ตารางจะอัปเดต</div>`;
+  h+=`<div style="font-size:9px;color:#6a8aaa;margin-top:6px;line-height:1.6">กำไร = ราคาขาย − ต้นทุนตารางผู้ให้บริการขนส่ง (ยังไม่รวมค่า Last Mile) · % = กำไร ÷ ราคาขาย · 🟢 ≥${Math.round(MIN_MARGIN*100)}% · 🟡 0–${Math.round(MIN_MARGIN*100)}% · 🔴 ขาดทุน<br/>คำนวณจากค่าที่ <u>บันทึกแล้ว</u> — แก้ markup/ส่วนลดแล้วกด 💾 บันทึก ตารางจะอัปเดต</div>`;
   return h;
 }
 function mmSet(k,v){ mmState[k]=v; const el=document.getElementById('mmTable'); if(el) el.innerHTML=renderMarginTable(); }
@@ -1325,7 +1321,7 @@ body{margin:0;padding:20px;background:#fff;font-family:'Sarabun',sans-serif}
 <div class="pa-logo">Saveway<span> Express</span></div>
 <div class="pa-sub">📦 ใบส่งพัสดุ · ติดไว้ที่กล่อง</div>
 <div class="pa-label">📮 จัดส่งถึง</div>
-<div class="pa-address">บริษัท SAVEWAY (พรแก้วขนส่ง)<br/>177/12 หมู่ 4 ถนนเสด็จ ซอยสุริยะวงศ์<br/>ตำบลมีชัย อำเภอเมือง<br/>จังหวัดหนองคาย 43000</div>
+<div class="pa-address">บริษัท SAVEWAY (ผู้ให้บริการขนส่งขนส่ง)<br/>177/12 หมู่ 4 ถนนเสด็จ ซอยสุริยะวงศ์<br/>ตำบลมีชัย อำเภอเมือง<br/>จังหวัดหนองคาย 43000</div>
 <div class="pa-phone">📞 085-590-7666 · 061-795-7496</div>
 <hr class="pa-divider"/>
 <div class="pa-label">📦 ผู้ส่ง</div>
@@ -1464,13 +1460,14 @@ function buildPublicSheet(){
 const SB_URL = 'https://fwavozcvydpcsczwpslw.supabase.co';
 const SB_KEY = 'sb_publishable_EfIRGNvqXrR1eH07B1BsKw_eiZYvLQC';
 const sb = window.supabase.createClient(SB_URL, SB_KEY);
-let cloudAdmin = false, cloudMsgText = '';
+let cloudAdmin = false, cloudMsgText = '', configReady = false;   // configReady = โหลด/นำเข้าค่าจริงแล้ว (กันเผยแพร่ค่าว่าง)
 isAdminSessionValid = function(){ return cloudAdmin; };   // ใช้การล็อกอินจริงแทน PIN
 function collectConfig(){
   return {catMarkup:Object.fromEntries(CATEGORIES.map(c=>[c.id,c.markup])), warehouseDiscount:WAREHOUSE_DISCOUNT, anousithCost:ANOUSITH_COST,
     sizeCosts:Object.fromEntries(SIZE_CLASSES.map(c=>[c.id,c.cost])), volTiers:Object.fromEntries(VOL_TIERS.map(t=>[t.id,t.discount])),
     volumetricDivisor:VOLUMETRIC_DIVISOR, lakToThbRate:LAK_TO_THB_RATE, provinceLmMargin:PROVINCE_LM_MARGIN, provinceMinPrice:PROVINCE_MIN_PRICE,
-    lakAddonLight:LAK_HOME_ADDON_LIGHT, lakAddonHeavy:LAK_HOME_ADDON_HEAVY, lakOveragePerKg:LAK_OVERAGE_PER_KG, startPrice:START_PRICE, minMargin:MIN_MARGIN};
+    lakAddonLight:LAK_HOME_ADDON_LIGHT, lakAddonHeavy:LAK_HOME_ADDON_HEAVY, lakOveragePerKg:LAK_OVERAGE_PER_KG, startPrice:START_PRICE, minMargin:MIN_MARGIN,
+    parcelFlat:Object.fromEntries(PARCEL_TIERS.map(p=>[p.id,p.flat])), boxMarginalRate:{...BOX_MARGINAL_RATE}, provinceTableLak:[...PROVINCE_LM_TABLE_LAK]};
 }
 function applyConfig(s){
   if(s.startPrice!==undefined) START_PRICE=s.startPrice; if(s.minMargin!==undefined) MIN_MARGIN=s.minMargin;
@@ -1482,6 +1479,9 @@ function applyConfig(s){
   if(s.volumetricDivisor) VOLUMETRIC_DIVISOR=s.volumetricDivisor; if(s.lakToThbRate) LAK_TO_THB_RATE=s.lakToThbRate;
   if(s.provinceLmMargin) PROVINCE_LM_MARGIN=s.provinceLmMargin; if(s.provinceMinPrice!==undefined) PROVINCE_MIN_PRICE=s.provinceMinPrice;
   if(s.lakAddonLight) LAK_HOME_ADDON_LIGHT=s.lakAddonLight; if(s.lakAddonHeavy) LAK_HOME_ADDON_HEAVY=s.lakAddonHeavy; if(s.lakOveragePerKg) LAK_OVERAGE_PER_KG=s.lakOveragePerKg;
+  if(s.parcelFlat) PARCEL_TIERS.forEach(p=>{ if(s.parcelFlat[p.id]!==undefined) p.flat=s.parcelFlat[p.id]; });
+  if(s.boxMarginalRate) Object.keys(BOX_MARGINAL_RATE).forEach(k=>{ if(s.boxMarginalRate[k]!==undefined) BOX_MARGINAL_RATE[k]=s.boxMarginalRate[k]; });
+  if(Array.isArray(s.provinceTableLak)) s.provinceTableLak.forEach((v,i)=>{ if(i<PROVINCE_LM_TABLE_LAK.length) PROVINCE_LM_TABLE_LAK[i]=v; });
 }
 function cloudMsg(m){ cloudMsgText = m; const el = document.getElementById('cloudMsg'); if(el) el.textContent = m; }
 function renderCloudBar(){
@@ -1492,7 +1492,8 @@ function renderCloudBar(){
   }
   const rows = SIZE_CLASSES.map((c,i)=>`<label style="display:inline-block;margin:2px 8px 2px 0">${c.id} <input type="number" value="${c.cost}" min="0" style="width:60px" onchange="SIZE_CLASSES[${i}].cost=parseFloat(this.value)||0;cart=cart.map(it=>makeCartItem(it.id,it.w,it.l,it.h,it.kg,it.qty));clearResult();render();cloudMsg('แก้ต้นทุนแล้ว — กด บันทึก & เผยแพร่')"/></label>`).join('');
   bar.innerHTML = `<b>☁️ ADMIN</b> <button onclick="cloudLoad()">⬇️ โหลดค่า</button> <button onclick="cloudPublish()" style="background:#16a34a;color:#fff">⬆️ บันทึก &amp; เผยแพร่ราคา</button> <button onclick="cloudLogout()">ออก</button> <span id="cloudMsg">${cloudMsgText}</span>
-    <details style="margin-top:4px"><summary style="cursor:pointer">ต้นทุนตามขนาด (ตารางพรแก้ว, บาท/กล่อง)</summary>${rows}</details>`;
+    <details style="margin-top:4px"><summary style="cursor:pointer">ต้นทุนตามขนาด (ตารางผู้ให้บริการขนส่ง, บาท/กล่อง)</summary>${rows}</details>
+    <details style="margin-top:4px"><summary style="cursor:pointer">📥 นำเข้าค่าเริ่มต้น (JSON) — ใช้ครั้งแรกเท่านั้น</summary><textarea id="cSeed" rows="4" style="width:100%" placeholder="วางเนื้อหาไฟล์ saveway-private-config.json"></textarea><button onclick="cloudImport()">นำเข้า</button></details>`;
 }
 async function cloudLogin(){
   const email = document.getElementById('cEmail').value.trim(), password = document.getElementById('cPass').value;
@@ -1508,14 +1509,26 @@ async function cloudAfterLogin(){
   if(!cloudAdmin){ await sb.auth.signOut(); cloudMsg('⛔ บัญชีนี้ไม่ใช่แอดมิน'); renderCloudBar(); return; }
   renderCloudBar(); await cloudLoad();
 }
-async function cloudLogout(){ await sb.auth.signOut(); cloudAdmin = false; isAdminUnlocked = false; cloudMsg('ออกจากระบบแล้ว'); renderCloudBar(); }
+async function cloudLogout(){ await sb.auth.signOut(); cloudAdmin = false; isAdminUnlocked = false; cloudMsg('ออกจากระบบแล้ว'); renderCloudBar(); setTimeout(()=>location.reload(),300); }
+function cloudImport(){
+  try{
+    const s = JSON.parse(document.getElementById('cSeed').value);
+    if(!s.catMarkup || !s.sizeCosts){ cloudMsg('❌ JSON ไม่ครบ (ต้องมี catMarkup และ sizeCosts)'); return; }
+    applyConfig(s); configReady = true;
+    cart = cart.map(it=>makeCartItem(it.id,it.w,it.l,it.h,it.kg,it.qty));
+    clearResult(); render(); renderCloudBar();
+    if(document.getElementById('start-price')) renderAdminPanel();
+    cloudMsg('📥 นำเข้าแล้ว — ตรวจค่า แล้วกด บันทึก & เผยแพร่');
+  }catch(e){ cloudMsg('❌ อ่าน JSON ไม่ได้: '+e.message); }
+}
 async function cloudLoad(){
   const {data, error} = await sb.from('pricing_private').select('config').eq('id',1).single();
   if(!error && data && data.config && data.config.catMarkup){
-    applyConfig(data.config); cart = cart.map(it=>makeCartItem(it.id,it.w,it.l,it.h,it.kg,it.qty)); clearResult(); render(); renderCloudBar(); cloudMsg('⬇️ โหลดค่าจากคลาวด์แล้ว');
-  } else { cloudMsg('ยังไม่มีค่าบนคลาวด์ — ใช้ค่าในไฟล์นี้ แล้วกด "บันทึก & เผยแพร่"'); }
+    applyConfig(data.config); configReady = true; cart = cart.map(it=>makeCartItem(it.id,it.w,it.l,it.h,it.kg,it.qty)); clearResult(); render(); renderCloudBar(); cloudMsg('⬇️ โหลดค่าจากคลาวด์แล้ว');
+  } else { cloudMsg('ยังไม่มีค่าบนคลาวด์ — นำเข้าไฟล์ค่าเริ่มต้น (JSON) จากช่องนำเข้าก่อน แล้วค่อยกด บันทึก & เผยแพร่'); }
 }
 async function cloudPublish(){
+  if(!configReady){ cloudMsg('⛔ ยังไม่ได้โหลด/นำเข้าค่าจริง — ห้ามเผยแพร่ค่าว่าง'); return; }
   if(document.getElementById('start-price')) saveAdminSettings();   // รับค่าที่แก้ในแผง Admin ก่อน
   const now = new Date().toISOString();
   const r1 = await sb.from('pricing_private').upsert({id:1, config:collectConfig(), updated_at:now});
