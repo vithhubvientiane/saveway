@@ -1002,19 +1002,6 @@ function exportPDF(){
   if(!SHEET){ (document.querySelector('.wrap')||document.body).innerHTML='<div style="padding:40px 20px;text-align:center;font-family:sans-serif;color:#7A0F1E"><h2>⚠️ โหลดตารางราคาไม่สำเร็จ</h2><p>กรุณาตรวจสอบอินเทอร์เน็ตแล้วรีเฟรชหน้านี้ หรือติดต่อ Saveway Express</p></div>'; return; }
   applySheet(); render(); loadCartFromURL();
 })();
-
-// Demo data
-if(cart.length===0 && !window.location.search.includes('cart=')){
-  cart=[
-    makeCartItem('demo1',55,55,55,5,2),
-    makeCartItem('demo2',42,55,11,5,1),
-    makeCartItem('demo3',87,45,54,4,1),
-  ];
-  catId='fashion';
-  render();
-  updateBtn();
-  setTimeout(calculateCart, 200);
-}
 </script>
 </body>
 </html>
